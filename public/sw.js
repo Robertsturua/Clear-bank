@@ -1,4 +1,3 @@
-// public/sw.js
 const cacheName = 'clearbank-v1';
 
 // Chrome requires a fetch event listener to trigger the Install prompt
