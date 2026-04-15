@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Clear.Bank | Admin Control Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --admin-navy: #051024; --admin-cyan: #00E5C4; --bg-color: #f4f7f9; 
+      --surface: #ffffff; --text-main: #051024; --text-muted: #64748b; 
+      --border: #e2e8f0; --font: 'Inter', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); }
+    body { background-color: var(--bg-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+    
+    /* Sidebar */
+    .sidebar { width: 280px; background: var(--admin-navy); color: white; display: flex; flex-direction: column; padding: 24px 20px; }
+    .brand { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 40px; padding: 0 12px; display: flex; align-items: center; gap: 10px; }
+    .nav-menu { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .nav-link { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; color: #94a3b8; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.2s; }
+    .nav-link:hover { background: rgba(255,255,255,0.05); color: white; }
+    .nav-link.active { background: var(--admin-cyan); color: var(--admin-navy); }
+    .nav-link svg { width: 18px; height: 18px; }
+    
+    /* Main Content */
+    .main-content { flex: 1; overflow-y: auto; padding: 40px; }
+    .page-header { margin-bottom: 32px; }
+    .page-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+    
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 40px; }
+    .stat-card { background: var(--surface); padding: 24px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 12px; }
+    .stat-icon { width: 40px; height: 40px; background: #f1f5f9; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--admin-navy); }
+    .stat-card h3 { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-card .value { font-size: 32px; font-weight: 800; letter-spacing: -1px; }
+    
+    /* Tables */
+    .card { background: var(--surface); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+    .card-header { padding: 20px 24px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f8fafc; padding: 14px 24px; text-align: left; font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px 24px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
+    
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .badge-warning { background: #fefce8; color: #854d0e; border: 1px solid #fde047; }
+    
+    .btn-action { background: var(--admin-navy); color: white; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; }
+    .btn-action:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><i data-lucide="shield-check"></i> God Mode</div>
+    <nav class="nav-menu">
+      <a href="/admin" class="nav-link active"><i data-lucide="layout-dashboard"></i> Control Center</a>
+      <a href="/admin/users" class="nav-link"><i data-lucide="users"></i> Manage Users</a>
+      <a href="/admin/comms" class="nav-link"><i data-lucide="message-square"></i> Communications</a>
+      <a href="/dashboard" class="nav-link" style="margin-top: auto; color: var(--admin-cyan);"><i data-lucide="log-out"></i> Back to App</a>
+    </nav>
+  </aside>
+  <main class="main-content">
+    <div class="page-header">
+      <h1>System Overview</h1>
+    </div>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon"><i data-lucide="users"></i></div>
+        <div><h3>Total Users</h3><div class="value"><%= stats.totalUsers %></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i data-lucide="euro"></i></div>
+        <div><h3>System Fiat Vol.</h3><div class="value">€<%= (stats.totalFiat / 100).toLocaleString('en-US', {minimumFractionDigits: 2}) %></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i data-lucide="bitcoin"></i></div>
+        <div><h3>System BTC Vol.</h3><div class="value"><%= (stats.totalBtc / 100000000).toFixed(8) %> ₿</div></div>
+      </div>
+      <div class="stat-card" style="border: 1px solid #fde047; background: #fefce8;">
+        <div class="stat-icon" style="background: white; color: #854d0e;"><i data-lucide="alert-circle"></i></div>
+        <div><h3 style="color: #854d0e;">Pending Actions</h3><div class="value" style="color: #854d0e;"><%= stats.pendingCount %></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Action Required: Pending Activity</div>
+      <table>
+        <thead><tr><th>Client Details</th><th>Activity Alert</th><th>Amount</th><th>Action</th></tr></thead>
+        <tbody>
+          <% if (pendingTxs.length === 0) { %>
+            <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 40px;">No pending activity requires your attention.</td></tr>
+          <% } else { %>
+            <% pendingTxs.forEach(tx => { %>
+              <tr>
+                <td>
+                  <strong><%= tx.full_name || 'No Name Set' %></strong><br>
+                  <span style="font-size: 13px; color: var(--text-muted);">@<%= tx.username %></span>
+                </td>
+                <td>
+                  <span class="badge badge-warning" style="margin-bottom: 6px;">
+                    Pending <%= tx.direction === 'OUTGOING' ? 'Transfer Out' : 'Deposit' %>
+                  </span><br>
+                  <span style="font-size: 13px; color: var(--text-muted);"><%= tx.tx_detail %></span>
+                </td>
+                <td style="font-weight: 700;"><%= tx.amount %></td>
+                <td>
+                  <a href="/admin/user/<%= tx.user_id %>" class="btn-action">
+                    Review Client <i data-lucide="arrow-right" style="width: 14px;"></i>
+                  </a>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </main>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

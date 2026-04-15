@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Clear.Bank | Open Account</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    :root {
+      --cb-black: #000000; --cb-white: #ffffff; --cb-cyan: #00E5C4;
+      --cb-pink: #FF3385; --cb-text: #111827; --cb-text-muted: #6B7280; --cb-border: #e5e7eb;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+    body { background-color: var(--cb-white); color: var(--cb-text); display: flex; flex-direction: column; min-height: 100vh; -webkit-tap-highlight-color: transparent; }
+
+    /* Ambient Background Art */
+    .bg-art { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: var(--cb-white); pointer-events: none; }
+    .orb-pink { position: absolute; bottom: -10vh; right: -20vw; width: 80vw; height: 80vw; background: var(--cb-pink); filter: blur(80px); -webkit-filter: blur(80px); opacity: 0.25; border-radius: 50%; animation: floatPink 15s ease-in-out infinite alternate; }
+    .orb-cyan { position: absolute; top: 10vh; left: -20vw; width: 70vw; height: 70vw; background: var(--cb-cyan); filter: blur(80px); -webkit-filter: blur(80px); opacity: 0.2; border-radius: 50%; animation: floatCyan 20s ease-in-out infinite alternate-reverse; }
+    @keyframes floatPink { 0% { transform: translate3d(0,0,0) scale(1); } 100% { transform: translate3d(-10vw, -10vh, 0) scale(1.2); } }
+    @keyframes floatCyan { 0% { transform: translate3d(0,0,0) scale(1); } 100% { transform: translate3d(10vw, 10vh, 0) scale(1.1); } }
+
+    /* Top Nav */
+    .nav-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; padding-top: max(20px, env(safe-area-inset-top)); }
+    .btn-back { width: 40px; height: 40px; border-radius: 50%; background: var(--cb-white); border: 1px solid var(--cb-border); display: flex; align-items: center; justify-content: center; color: var(--cb-black); text-decoration: none; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: transform 0.2s; }
+    .btn-back:active { transform: scale(0.9); }
+    .step-indicator { font-size: 13px; font-weight: 700; color: var(--cb-text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Main Form */
+    .auth-main { padding: 24px; flex: 1; display: flex; flex-direction: column; max-width: 500px; margin: 0 auto; width: 100%; }
+    .page-title { font-size: clamp(40px, 10vw, 52px); font-weight: 800; letter-spacing: -2px; line-height: 1.1; margin-bottom: 32px; color: var(--cb-black); }
+    
+    .form-step { display: none; }
+    .form-step.active { display: block; animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+    .input-group { margin-bottom: 20px; }
+    .input-group label { display: block; font-size: 13px; font-weight: 700; color: var(--cb-text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .input-wrapper { position: relative; display: flex; align-items: center; }
+    .input-wrapper svg { position: absolute; left: 16px; color: var(--cb-text-muted); width: 20px; height: 20px; }
+    
+    .standard-input { width: 100%; padding: 18px 16px; border: 1px solid var(--cb-border); border-radius: 16px; font-size: 16px; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: var(--cb-text); outline: none; transition: 0.2s; }
+    .standard-input.with-icon { padding-left: 48px; }
+    .standard-input:focus { border-color: var(--cb-black); background: var(--cb-white); box-shadow: 0 0 0 4px rgba(0,0,0,0.05); }
+    
+    .flex-row { display: flex; gap: 12px; }
+    .flex-row > * { flex: 1; }
+
+    .btn-submit { width: 100%; padding: 18px; background: var(--cb-black); color: var(--cb-white); border: none; border-radius: 30px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 12px; transition: transform 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-submit:active { transform: scale(0.98); }
+    .btn-submit.secondary { background: var(--cb-white); color: var(--cb-black); border: 1px solid var(--cb-border); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+
+    .alert { padding: 16px; border-radius: 12px; margin-bottom: 24px; font-size: 14px; font-weight: 600; background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; display: none; align-items: center; gap: 8px; }
+    .alert.visible { display: flex; }
+    
+    .auth-footer { margin-top: 32px; text-align: center; font-size: 14px; color: var(--cb-text-muted); font-weight: 500; padding-bottom: 40px;}
+    .auth-footer a { color: var(--cb-black); font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--cb-black); padding-bottom: 2px; }
+  </style>
+</head>
+<body>
+
+  <div class="bg-art"><div class="orb-pink"></div><div class="orb-cyan"></div></div>
+
+  <nav class="nav-header">
+    <a href="/login" class="btn-back"><i data-lucide="arrow-left"></i></a>
+    <div class="step-indicator" id="stepText">Step 1 of 2</div>
+  </nav>
+
+  <main class="auth-main">
+    <h1 class="page-title" id="titleText">Join<br>Clear.Bank.</h1>
+
+    <div class="alert" id="jsAlert"><i data-lucide="alert-circle" style="width: 18px;"></i> <span id="jsAlertText"></span></div>
+    <% if (error) { %><div class="alert visible"><i data-lucide="alert-circle" style="width: 18px;"></i> <%= error %></div><% } %>
+
+    <form method="post" action="/register" id="regForm">
+      
+      <div class="form-step active" id="step1">
+        <div class="input-group">
+          <label>Username</label>
+          <div class="input-wrapper">
+            <i data-lucide="user"></i>
+            <input id="username" name="username" type="text" class="standard-input with-icon" placeholder="Choose a username" required />
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Passcode</label>
+          <div class="input-wrapper">
+            <i data-lucide="lock"></i>
+            <input id="password" name="password" type="password" class="standard-input with-icon" placeholder="Create a passcode" required />
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Confirm Passcode</label>
+          <div class="input-wrapper">
+            <i data-lucide="lock"></i>
+            <input id="confirm_password" name="confirm_password" type="password" class="standard-input with-icon" placeholder="Repeat passcode" required />
+          </div>
+        </div>
+        <button type="button" class="btn-submit" onclick="goToStep2()">Continue <i data-lucide="arrow-right" style="width: 18px;"></i></button>
+        
+        <div class="auth-footer" id="footerText">
+          Already have an account? <a href="/login">Log in</a>
+        </div>
+      </div>
+
+      <div class="form-step" id="step2">
+        <div class="input-group">
+          <label>Legal Full Name</label>
+          <input id="full_name" name="full_name" class="standard-input" type="text" placeholder="First and Last Name" required/>
+        </div>
+        <div class="flex-row">
+          <div class="input-group"><label>Date of Birth</label><input id="dob" name="dob" class="standard-input" type="date" required/></div>
+          <div class="input-group"><label>Phone</label><input id="phone" name="phone" class="standard-input" type="tel" placeholder="+44" required/></div>
+        </div>
+        <div class="input-group">
+          <label>Email Address</label>
+          <input id="email" name="email" class="standard-input" type="email" placeholder="you@example.com" required/>
+        </div>
+        <div class="input-group" style="margin-bottom: 12px;">
+          <label>Home Address</label>
+          <input id="street" name="street" class="standard-input" type="text" placeholder="Street Address" style="margin-bottom: 12px;"/>
+        </div>
+        <div class="flex-row">
+          <div class="input-group" style="margin-bottom: 12px;"><input id="city" name="city" class="standard-input" type="text" placeholder="City" /></div>
+          <div class="input-group" style="margin-bottom: 12px;"><input id="postal_code" name="postal_code" class="standard-input" type="text" placeholder="Postcode" /></div>
+        </div>
+        <div class="input-group"><input id="country" name="country" class="standard-input" type="text" placeholder="Country" /></div>
+
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button type="button" class="btn-submit secondary" style="flex: 0.3;" onclick="goToStep1()"><i data-lucide="arrow-left" style="width: 18px;"></i></button>
+          <button type="submit" class="btn-submit" style="flex: 1; margin-top: 0;">Open Account</button>
+        </div>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    function showError(msg) { 
+      const a = document.getElementById('jsAlert'); document.getElementById('jsAlertText').innerText = msg; a.classList.add('visible'); 
+    }
+    function clearError() { document.getElementById('jsAlert').classList.remove('visible'); }
+    
+    function goToStep2() {
+      clearError();
+      const u = document.getElementById('username').value.trim(); const p = document.getElementById('password').value; const c = document.getElementById('confirm_password').value;
+      if (!u || !p || !c) return showError("Please fill out all credentials.");
+      if (p !== c) return showError("Passcodes do not match.");
+      if (p.length < 6) return showError("Passcode must be at least 6 characters.");
+      
+      document.getElementById('step1').classList.remove('active'); document.getElementById('step2').classList.add('active');
+      document.getElementById('stepText').innerText = "Step 2 of 2"; document.getElementById('titleText').innerText = "Verify\nIdentity.";
+    }
+    
+    function goToStep1() {
+      clearError();
+      document.getElementById('step2').classList.remove('active'); document.getElementById('step1').classList.add('active');
+      document.getElementById('stepText').innerText = "Step 1 of 2"; document.getElementById('titleText').innerText = "Join\nClear.Bank."; 
+    }
+  </script>
+</body>
+</html>

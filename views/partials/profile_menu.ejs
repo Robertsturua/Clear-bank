@@ -1,0 +1,196 @@
+<style>
+  /* Universal Avatar Button */
+  .mob-avatar-mini {
+    width: 36px; height: 36px; background: var(--mob-primary); color: white;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; border: none; outline: none; cursor: pointer;
+    box-shadow: var(--mob-shadow-sm); transition: transform 0.2s; flex-shrink: 0;
+  }
+  .mob-avatar-mini:active { transform: scale(0.95); }
+
+  /* Universal Premium Menu Styles */
+  .mob-profile-menu { position: fixed; inset: 0; background-color: #051024; color: white; z-index: 9999; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: none; flex-direction: column; overflow: hidden; }
+  .mob-profile-menu.open { transform: translateY(0); }
+  .mob-profile-menu::before { content: ''; position: absolute; top: -10%; left: -10%; width: 60vh; height: 60vh; background: radial-gradient(circle, rgba(0, 229, 196, 0.35) 0%, rgba(0, 229, 196, 0) 70%); animation: floatCyan 8s ease-in-out infinite alternate; z-index: 0; pointer-events: none; }
+  .mob-profile-menu::after { content: ''; position: absolute; bottom: -10%; right: -10%; width: 60vh; height: 60vh; background: radial-gradient(circle, rgba(225, 20, 130, 0.3) 0%, rgba(225, 20, 130, 0) 70%); animation: floatPink 10s ease-in-out infinite alternate; z-index: 0; pointer-events: none; }
+  @keyframes floatCyan { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(15%, 15%) scale(1.2); } }
+  @keyframes floatPink { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(-15%, -15%) scale(1.2); } }
+  
+  .profile-menu-content-wrapper { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; }
+  .profile-menu-header { padding: 20px; padding-top: max(20px, env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; }
+  .profile-menu-header .brand { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; color: white; }
+  
+  .profile-menu-header button { background: transparent; border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 4px; margin-right: -4px; outline: none; transition: transform 0.2s; }
+  .profile-menu-header button:active { transform: scale(0.9); }
+  
+  .profile-menu-body { padding: 0 20px; flex: 1; overflow-y: auto; padding-bottom: 40px; }
+  
+  .profile-avatar-modal { width: 88px; height: 88px; background: var(--mob-accent); color: var(--mob-primary); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 800; box-shadow: 0 8px 24px rgba(0, 229, 196, 0.3); }
+  .profile-name { text-align: center; font-size: 26px; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.5px; color: white; }
+  .profile-handle { text-align: center; color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 32px; font-weight: 500; }
+  
+  .profile-list { background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-radius: 20px; overflow: hidden; margin-bottom: 16px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+  .profile-list-item { padding: 18px 20px; display: flex; align-items: center; gap: 16px; color: white; text-decoration: none; font-weight: 600; font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+  .profile-list-item:last-child { border-bottom: none; }
+  .profile-list-item svg { width: 20px; height: 20px; color: rgba(255,255,255,0.6); stroke-width: 2px; }
+
+  /* ========================================================
+     NEW: GLOBAL PULL-TO-REFRESH UI
+     ======================================================== */
+  .ptr-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 70px;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999; pointer-events: none;
+    transform: translateY(-100%);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ptr-icon-wrapper {
+    width: 44px; height: 44px; background: white; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15); border: 1px solid var(--mob-border, #e5e7eb);
+    color: var(--mob-primary, #051024);
+  }
+  .ptr-icon-wrapper svg { transition: transform 0.1s linear; width: 22px; height: 22px; }
+  .ptr-loading .ptr-icon-wrapper svg { animation: ptr-spin 1s linear infinite; }
+  @keyframes ptr-spin { 100% { transform: rotate(360deg); } }
+</style>
+
+<div id="profileMenu" class="mob-profile-menu">
+  <div class="profile-menu-content-wrapper">
+    <div class="profile-menu-header">
+      <div class="brand">Clear<span style="color: var(--mob-accent);">.</span>Bank</div>
+      <button onclick="closeProfileMenu()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    
+    <div class="profile-menu-body">
+      <div class="profile-avatar-modal"><%= typeof username !== 'undefined' && username ? username.charAt(0).toUpperCase() : 'U' %></div>
+      <div class="profile-name"><%= typeof account !== 'undefined' && account.name ? account.name : 'User' %></div>
+      <div class="profile-handle">@<%= typeof username !== 'undefined' ? username : 'username' %></div>
+
+      <div class="profile-list">
+        <a href="/dashboard" class="profile-list-item"><i data-lucide="home"></i> Home</a>
+        <a href="/send" class="profile-list-item"><i data-lucide="arrow-up-right"></i> Make a payment</a>
+        <a href="/receive" class="profile-list-item"><i data-lucide="arrow-down-left"></i> Receive funds</a>
+        <a href="/hisa" class="profile-list-item"><i data-lucide="piggy-bank"></i> Savings account</a>
+        
+        <% if (typeof account !== 'undefined' && (account.btc_status === 'ACTIVE' || account.eth_status === 'ACTIVE')) { %>
+          <a href="/crypto" class="profile-list-item"><i data-lucide="bitcoin"></i> Crypto Wallets</a>
+        <% } %>
+
+        <a href="/transfers" class="profile-list-item"><i data-lucide="list"></i> Transaction history</a>
+      </div>
+
+      <div class="profile-list">
+        <a href="/account" class="profile-list-item"><i data-lucide="user"></i> Account</a>
+        <a href="/profile" class="profile-list-item"><i data-lucide="file-text"></i> Personal details</a>
+        <a href="/support" class="profile-list-item"><i data-lucide="help-circle"></i> Help & Support</a>
+      </div>
+
+      <div class="profile-list">
+        <form action="/logout" method="POST" style="margin: 0;">
+          <button type="submit" class="profile-list-item" style="width: 100%; border: none; background: transparent; text-align: left; color: #f87171; font-family: 'Inter', sans-serif;">
+            <i data-lucide="log-out" style="color: #f87171;"></i> Log out
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Menu Control
+  function openProfileMenu() {
+    const menu = document.getElementById('profileMenu');
+    menu.style.display = 'flex';
+    setTimeout(() => menu.classList.add('open'), 10);
+  }
+  function closeProfileMenu() {
+    const menu = document.getElementById('profileMenu');
+    menu.classList.remove('open');
+    setTimeout(() => menu.style.display = 'none', 400);
+  }
+  
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+
+  // ========================================================
+  // GLOBAL PULL-TO-REFRESH SCRIPT
+  // Automatically attaches to any page including this partial
+  // ========================================================
+  document.addEventListener("DOMContentLoaded", () => {
+    
+    // Inject the visual spinner into the body
+    const ptrHTML = `
+      <div class="ptr-container" id="ptrContainer">
+        <div class="ptr-icon-wrapper" id="ptrIcon">
+          <i data-lucide="refresh-cw"></i>
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('afterbegin', ptrHTML);
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    const ptrContainer = document.getElementById('ptrContainer');
+    const ptrIcon = document.getElementById('ptrIcon').querySelector('svg');
+    
+    let startY = 0;
+    let currentY = 0;
+    let isPulling = false;
+    let isRefreshing = false;
+
+    // Detect touch start (or mouse emulation in F12 dev tools)
+    document.addEventListener('touchstart', (e) => {
+      // Only allow pull to refresh if the user is scrolled all the way to the top
+      if (window.scrollY <= 0 && !isRefreshing) {
+        startY = e.touches[0].clientY;
+        isPulling = true;
+        ptrContainer.style.transition = 'none'; // Remove snap transition while dragging
+      }
+    }, { passive: true });
+
+    // Calculate drag distance
+    document.addEventListener('touchmove', (e) => {
+      if (!isPulling || isRefreshing) return;
+      
+      currentY = e.touches[0].clientY;
+      let pullDistance = currentY - startY;
+
+      // If pulling down from top
+      if (pullDistance > 0 && window.scrollY <= 0) {
+        // Resistance formula so it feels like a heavy rubber band
+        let resistance = pullDistance / 2.5; 
+        if (resistance > 80) resistance = 80 + (resistance - 80) * 0.2; 
+        
+        ptrContainer.style.transform = `translateY(${resistance - 70}px)`; // -70px is hidden start state
+        if (ptrIcon) ptrIcon.style.transform = `rotate(${resistance * 3}deg)`;
+      }
+    }, { passive: true });
+
+    // Release drag
+    document.addEventListener('touchend', () => {
+      if (!isPulling || isRefreshing) return;
+      isPulling = false;
+      ptrContainer.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)'; // Restore snap physics
+
+      let pullDistance = currentY - startY;
+      
+      // If pulled past threshold (100px)
+      if (pullDistance > 100 && window.scrollY <= 0) { 
+        isRefreshing = true;
+        ptrContainer.style.transform = `translateY(20px)`; // Hold spinner in view
+        ptrContainer.classList.add('ptr-loading'); // Start spinning animation
+        
+        // Wait 800ms for UX feel, then actually refresh the page
+        setTimeout(() => {
+          window.location.reload();
+        }, 800);
+      } else {
+        // Not pulled far enough, snap back out of view
+        ptrContainer.style.transform = `translateY(-100%)`;
+      }
+    });
+  });
+</script>

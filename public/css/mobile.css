@@ -1,0 +1,283 @@
+/* public/css/mobile.css (Prismapay / Clear.Bank Mobile Framework) */
+
+:root {
+  --mob-primary: #051024;       /* Deep Navy */
+  --mob-accent: #00E5C4;        /* Vibrant Cyan */
+  --mob-primary-dim: #E6FCF9;   /* Light Cyan for subtle backgrounds */
+  --mob-surface: #ffffff;
+  --mob-bg: #F4F7F9;            /* Cool light grey */
+  --mob-text: #051024;
+  --mob-text-muted: #64748b;
+  --mob-border: #e2e8f0;
+  --mob-radius-md: 16px;
+  --mob-radius-lg: 24px;
+  --mob-shadow-sm: 0 1px 3px rgba(5, 16, 36, 0.06);
+  --mob-shadow-md: 0 8px 20px rgba(5, 16, 36, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--mob-bg);
+  color: var(--mob-text);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Changed from fixed 100vh to allow scrolling */
+  overflow-x: hidden; /* Prevent horizontal scrolling, allow vertical */
+  -webkit-tap-highlight-color: transparent; /* Removes blue tap highlight on mobile */
+}
+
+/* Header Area */
+.mob-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  padding-top: max(16px, env(safe-area-inset-top));
+  background: var(--mob-bg);
+}
+
+.mob-avatar {
+  width: 36px;
+  height: 36px;
+  background: var(--mob-primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: var(--mob-shadow-sm);
+}
+
+.mob-search-bar {
+  flex: 1;
+  background: var(--mob-surface);
+  border: 1px solid var(--mob-border);
+  border-radius: 20px;
+  padding: 8px 16px;
+  margin: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--mob-text-muted);
+  font-size: 14px;
+  box-shadow: var(--mob-shadow-sm);
+}
+
+.mob-header-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--mob-surface);
+  border: 1px solid var(--mob-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mob-text);
+  font-size: 16px;
+  text-decoration: none;
+  box-shadow: var(--mob-shadow-sm);
+}
+
+/* Main Content Area */
+.mob-main-content {
+  flex: 1;
+  width: 100%;
+  max-width: 600px; /* Optional: keeps it from stretching too wide on tablets */
+  margin: 0 auto;
+  /* padding-bottom ensures content isn't hidden behind the bottom nav */
+  padding: 10px 0 110px 0; 
+}
+
+/* Centered Balance Area */
+.mob-balance-area {
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 32px;
+}
+
+.mob-balance-subtitle {
+  font-size: 13px;
+  color: var(--mob-text-muted);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.mob-balance-amount {
+  font-size: clamp(40px, 10vw, 56px); /* Responsive font scaling */
+  font-weight: 800;
+  letter-spacing: -2px;
+  margin-bottom: 12px;
+  color: var(--mob-text);
+}
+
+.mob-pill-btn {
+  background: var(--mob-surface);
+  border: 1px solid var(--mob-border);
+  color: var(--mob-primary);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--mob-shadow-sm);
+}
+
+/* Circular Action Buttons Row */
+.mob-action-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+  margin-bottom: 32px;
+}
+
+.mob-action-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--mob-text);
+}
+
+.mob-action-circle {
+  width: 56px;
+  height: 56px;
+  background: var(--mob-surface);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: var(--mob-primary);
+  box-shadow: var(--mob-shadow-md);
+  transition: transform 0.2s;
+  border: 1px solid var(--mob-border);
+}
+
+.mob-action-item:active .mob-action-circle {
+  transform: scale(0.95);
+  background: var(--mob-bg);
+}
+
+.mob-action-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* White Cards (Transactions, Lists) */
+.mob-card {
+  background: var(--mob-surface);
+  border-radius: var(--mob-radius-lg);
+  padding: 16px;
+  margin: 0 20px 24px 20px; /* Added horizontal margins for full-width constraint */
+  box-shadow: var(--mob-shadow-sm);
+  border: 1px solid var(--mob-border);
+}
+
+.mob-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  text-decoration: none;
+  color: var(--mob-text);
+  border-bottom: 1px solid var(--mob-border);
+}
+.mob-list-item:last-child { border-bottom: none; }
+
+.mob-item-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.mob-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.mob-item-details h4 {
+  margin: 0 0 4px 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--mob-text);
+}
+
+.mob-item-details p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--mob-text-muted);
+}
+
+.mob-item-right {
+  font-size: 15px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.mob-btn-text {
+  display: block;
+  text-align: center;
+  color: var(--mob-primary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  padding-top: 12px;
+}
+
+/* Bottom Navigation */
+.mob-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(70px + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid var(--mob-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding-bottom: env(safe-area-inset-bottom); /* Fix for iPhone home bar */
+  z-index: 100;
+}
+
+.mob-nav-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-decoration: none;
+  color: var(--mob-text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  width: 60px;
+  height: 100%;
+  transition: color 0.2s;
+}
+
+.mob-nav-link.active {
+  color: var(--mob-primary);
+}
+
+.mob-nav-icon {
+  font-size: 22px;
+  margin-bottom: 2px;
+}

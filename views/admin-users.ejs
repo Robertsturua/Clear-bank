@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Clear.Bank | Manage Users</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --admin-navy: #051024; --admin-cyan: #00E5C4; --bg-color: #f4f7f9; 
+      --surface: #ffffff; --text-main: #051024; --text-muted: #64748b; 
+      --border: #e2e8f0; --font: 'Inter', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); }
+    body { background-color: var(--bg-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+    
+    .sidebar { width: 280px; background: var(--admin-navy); color: white; display: flex; flex-direction: column; padding: 24px 20px; }
+    .brand { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 40px; padding: 0 12px; display: flex; align-items: center; gap: 10px; }
+    .nav-menu { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .nav-link { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; color: #94a3b8; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.2s; }
+    .nav-link:hover { background: rgba(255,255,255,0.05); color: white; }
+    .nav-link.active { background: var(--admin-cyan); color: var(--admin-navy); }
+    .nav-link svg { width: 18px; height: 18px; }
+    
+    .main-content { flex: 1; overflow-y: auto; padding: 40px; }
+    .page-header { margin-bottom: 32px; }
+    .page-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+
+    .card { background: var(--surface); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f8fafc; padding: 14px 24px; text-align: left; font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 16px 24px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
+    
+    .pill { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    
+    .btn-action { background: #f1f5f9; border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; text-decoration: none; color: var(--text-main); display: inline-block; transition: 0.2s; }
+    .btn-action:hover { background: #e2e8f0; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><i data-lucide="shield-check"></i> God Mode</div>
+    <nav class="nav-menu">
+      <a href="/admin" class="nav-link"><i data-lucide="layout-dashboard"></i> Control Center</a>
+      <a href="/admin/users" class="nav-link active"><i data-lucide="users"></i> Manage Users</a>
+      <a href="/admin/comms" class="nav-link"><i data-lucide="message-square"></i> Communications</a>
+      <a href="/dashboard" class="nav-link" style="margin-top: auto; color: var(--admin-cyan);"><i data-lucide="log-out"></i> Back to App</a>
+    </nav>
+  </aside>
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Master User Directory</h1>
+    </div>
+    <div class="card">
+      <table>
+        <thead><tr><th>ID</th><th>Client Info</th><th>Fiat Balance</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+          <% if (users.length === 0) { %>
+            <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">No registered users found.</td></tr>
+          <% } else { %>
+            <% users.forEach(user => { %>
+              <tr>
+                <td style="color: var(--text-muted); font-family: monospace;">#<%= String(user.id).padStart(3, '0') %></td>
+                <td>
+                  <strong style="font-size: 15px;">@<%= user.username %></strong><br>
+                  <span style="font-size: 13px; color: var(--text-muted);"><%= user.email || 'No email' %></span>
+                </td>
+                <td style="font-weight: 600;">€<%= ((user.fiat_cents || 0) / 100).toLocaleString('en-US', {minimumFractionDigits: 2}) %></td>
+                <td>
+                  <% if (user.status === 'ACTIVE') { %>
+                    <span class="pill" style="background: #dcfce7; color: #166534;"><i data-lucide="check-circle" style="width:12px;"></i> Active</span>
+                  <% } else if (user.status === 'LOCKED') { %>
+                    <span class="pill" style="background: #fee2e2; color: #991b1b;"><i data-lucide="lock" style="width:12px;"></i> Locked</span>
+                  <% } else { %>
+                    <span class="pill" style="background: #fef3c7; color: #92400e;"><i data-lucide="clock" style="width:12px;"></i> Suspended</span>
+                  <% } %>
+                </td>
+                <td><a href="/admin/user/<%= user.id %>" class="btn-action">Edit User</a></td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </main>
+  <script>lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Prismapay | Account Details</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/mobile.css">
+  
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    body { background-color: var(--mob-bg); overflow-x: hidden; }
+    
+    .acc-header {
+      display: flex; align-items: center;
+      padding: 16px 20px;
+      padding-top: max(20px, env(safe-area-inset-top));
+      background: var(--mob-bg);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .acc-close-btn {
+      background: var(--mob-surface); border: 1px solid var(--mob-border); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--mob-text); box-shadow: var(--mob-shadow-sm); transition: 0.2s; text-decoration: none;
+    }
+    .acc-close-btn:active { transform: scale(0.95); }
+    .acc-header h1 { margin: 0 0 0 16px; font-size: 20px; font-weight: 800; color: var(--mob-text); }
+
+    /* Branded Promo Card */
+    .acc-promo-card {
+      background: var(--mob-primary); /* Deep Navy */
+      border-radius: var(--mob-radius-lg);
+      padding: 28px 24px;
+      margin: 10px 20px 24px 20px; color: white;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--mob-shadow-md);
+    }
+    .acc-promo-card::after {
+      content: ''; position: absolute; top: -50%; right: -20%; width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(0, 229, 196, 0.15) 0%, transparent 70%); pointer-events: none;
+    }
+    .acc-promo-card h2 { font-size: 22px; font-weight: 800; margin: 0 0 12px 0; line-height: 1.2; letter-spacing: -0.5px; position: relative; z-index: 1; }
+    .acc-promo-card p { font-size: 14px; color: rgba(255,255,255,0.8); margin: 0 0 24px 0; line-height: 1.5; max-width: 90%; position: relative; z-index: 1; }
+    .acc-promo-btn {
+      background: var(--mob-accent); /* Vibrant Cyan */
+      color: var(--mob-primary); /* Deep Navy Text */
+      border: none;
+      padding: 12px 24px;
+      border-radius: 20px;
+      font-size: 14px; font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.2s;
+      position: relative; z-index: 1;
+    }
+    .acc-promo-btn:active { transform: scale(0.96); }
+
+    /* Details Section */
+    .acc-section-title {
+      display: flex; justify-content: space-between;
+      align-items: center;
+      margin: 0 24px 12px 24px;
+    }
+    .acc-section-title h3 { font-size: 15px; font-weight: 700; color: var(--mob-text-muted); margin: 0; display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 0.5px;}
+    
+    .acc-currency-badge { 
+      background: var(--mob-surface); border: 1px solid var(--mob-border); 
+      padding: 4px 10px 4px 6px; 
+      border-radius: 20px; 
+      font-size: 12px; 
+      font-weight: 700; 
+      color: var(--mob-text);
+      display: flex; align-items: center; 
+      gap: 6px; 
+      box-shadow: var(--mob-shadow-sm);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .acc-currency-icon {
+      width: 18px; height: 18px; background: var(--mob-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;
+    }
+    .acc-currency-icon svg { width: 10px; height: 10px; stroke-width: 3px; }
+
+    .acc-section-title button { background: none; border: none; color: var(--mob-primary); font-weight: 700; font-size: 14px; cursor: pointer; }
+
+    /* FULLY VISIBLE DETAIL ROWS */
+    .acc-details-card {
+      background: var(--mob-surface); margin: 0 20px 24px 20px;
+      border-radius: var(--mob-radius-lg);
+      padding: 12px 20px;
+      box-shadow: var(--mob-shadow-sm);
+      border: 1px solid var(--mob-border);
+    }
+    
+    .acc-detail-row {
+      display: flex;
+      justify-content: space-between; align-items: flex-start;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--mob-border);
+    }
+    .acc-detail-row:last-child { border-bottom: none; }
+    
+    .acc-detail-text { display: flex; flex-direction: column; gap: 4px; flex: 1; padding-right: 12px; }
+    .acc-detail-label { font-size: 13px; color: var(--mob-text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .acc-detail-value { font-size: 16px; font-weight: 700; color: var(--mob-text); word-break: break-all; }
+    .acc-detail-value.monospace { font-family: monospace; letter-spacing: 0.5px; }
+    
+    .acc-copy-btn {
+      background: var(--mob-bg);
+      color: var(--mob-primary); border: 1px solid var(--mob-border);
+      width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; flex-shrink: 0;
+    }
+    .acc-copy-btn svg { width: 16px; height: 16px; stroke-width: 2.5px; }
+
+    /* Reusable Card for Plan & Help */
+    .acc-plan-card {
+      background: var(--mob-surface); margin: 0 20px 24px 20px; border-radius: var(--mob-radius-md); padding: 20px; display: flex; align-items: center; gap: 16px; box-shadow: var(--mob-shadow-sm); border: 1px solid var(--mob-border); cursor: pointer; text-decoration: none; transition: transform 0.2s;
+    }
+    .acc-plan-card:active { transform: scale(0.98); }
+    .acc-plan-icon { width: 44px; height: 44px; background: var(--mob-primary-dim); color: var(--mob-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .acc-plan-icon svg { width: 22px; height: 22px; stroke-width: 2px; }
+    .acc-plan-text h4 { margin: 0 0 4px 0; font-size: 15px; font-weight: 700; color: var(--mob-text); }
+    .acc-plan-text p { margin: 0; font-size: 13px; color: var(--mob-text-muted); line-height: 1.4; }
+    
+    .status-alert {
+      background: #fefce8; color: #854d0e; padding: 16px 20px; margin: 10px 20px 20px 20px; border-radius: 12px; font-size: 13px; font-weight: 600; border: 1px solid #fde047; display: flex; align-items: center; gap: 12px;
+    }
+
+    /* Upgrade Bottom Sheet */
+    .upgrade-sheet-overlay { position: fixed; inset: 0; background: rgba(5, 16, 36, 0.6); z-index: 300; display: none; opacity: 0; transition: opacity 0.3s; }
+    .upgrade-sheet {
+      position: fixed; bottom: 0; left: 0; right: 0; background: var(--mob-bg); border-radius: 24px 24px 0 0; z-index: 301;
+      transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom));
+    }
+    .upgrade-sheet.open { transform: translateY(0); }
+    .upgrade-sheet-overlay.open { display: block; opacity: 1; }
+    
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .modal-header h2 { margin: 0; font-size: 20px; font-weight: 800; color: var(--mob-text); }
+    .modal-close-btn { background: var(--mob-surface); border: 1px solid var(--mob-border); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+    .plan-option { background: var(--mob-surface); border: 1px solid var(--mob-border); border-radius: 16px; padding: 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+    .plan-option.active { border-color: var(--mob-primary); box-shadow: 0 0 0 2px var(--mob-primary-dim); background: var(--mob-surface); }
+    .plan-text h4 { margin: 0 0 4px 0; font-size: 16px; font-weight: 700; color: var(--mob-text); }
+    .plan-text p { margin: 0; font-size: 13px; color: var(--mob-text-muted); }
+
+    .btn-select-plan { background: white; border: 1px solid var(--mob-primary); color: var(--mob-primary); padding: 8px 16px; border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
+    .badge-active { background: var(--mob-primary); color: white; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; }
+
+    /* Custom Toast Notification */
+    .toast-notif { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--mob-primary); color: white; padding: 12px 24px; border-radius: 20px; font-size: 14px; font-weight: 600; box-shadow: var(--mob-shadow-md); z-index: 999; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); white-space: nowrap; }
+    .toast-notif.show { transform: translateX(-50%) translateY(0); }
+
+    .mob-nav-icon svg { width: 24px; height: 24px; stroke-width: 2px; margin-bottom: 2px; }
+  </style>
+</head>
+<body>
+
+  <div id="toast" class="toast-notif">Message</div>
+
+  <header class="acc-header" style="justify-content: space-between;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="/dashboard" class="acc-close-btn"><i data-lucide="arrow-left" style="width: 18px;"></i></a>
+      <h1 style="margin: 0; font-size: 20px; font-weight: 800; color: var(--mob-text);">Accounts</h1>
+    </div>
+    <button class="mob-avatar-mini" onclick="openProfileMenu()">
+      <%= typeof username !== 'undefined' && username ? username.charAt(0).toUpperCase() : 'U' %>
+    </button>
+  </header>
+
+  <% if (account.tier_status === 'PENDING') { %>
+    <div class="status-alert">
+      <i data-lucide="clock" style="width: 20px; height: 20px; flex-shrink: 0;"></i>
+      <span>Your upgrade to the <strong><%= account.requested_tier %> plan</strong> is currently being reviewed.</span>
+    </div>
+  <% } %>
+
+  <main class="mob-main-content" style="padding: 0; padding-bottom: 90px;">
+    
+    <div class="acc-promo-card">
+      <h2>Scale your banking experience</h2>
+      <p>Upgrade to a Premium or VIP tier to unlock higher daily transaction allowances and priority processing.</p>
+      <button class="acc-promo-btn" onclick="openUpgradeSheet()">View Plans</button>
+    </div>
+
+    <div class="acc-plan-card" onclick="openUpgradeSheet()">
+      <div class="acc-plan-icon"><i data-lucide="gem"></i></div>
+      <div class="acc-plan-text">
+        <h4>Current Plan</h4>
+        <p><%= account.account_tier %> Tier</p>
+      </div>
+    </div>
+
+    <div class="acc-section-title">
+      <h3>
+        Account details
+        <div class="acc-currency-badge">
+          <div class="acc-currency-icon"><i data-lucide="euro"></i></div>
+          Euro
+        </div>
+      </h3>
+      <button onclick="showToast('Multi-currency accounts coming soon!')">Add new</button>
+    </div>
+
+    <div class="acc-details-card">
+      
+      <div class="acc-detail-row">
+        <div class="acc-detail-text">
+          <span class="acc-detail-label">Account holder</span>
+          <span class="acc-detail-value"><%= account.name %></span>
+        </div>
+      </div>
+      
+      <div class="acc-detail-row">
+        <div class="acc-detail-text">
+          <span class="acc-detail-label">Account (IBAN)</span>
+          <span class="acc-detail-value monospace">
+            <%= userStatus === 'PENDING' ? 'Pending Verification...' : account.iban %>
+          </span>
+        </div>
+        <% if (userStatus !== 'PENDING') { %>
+          <button class="acc-copy-btn" onclick="copyToClipboard('<%= account.iban %>', this)"><i data-lucide="copy"></i></button>
+        <% } %>
+      </div>
+      
+      <div class="acc-detail-row">
+        <div class="acc-detail-text">
+          <span class="acc-detail-label">BIC / SWIFT</span>
+          <span class="acc-detail-value monospace">
+            <%= userStatus === 'PENDING' ? 'Pending Verification...' : account.swift %>
+          </span>
+        </div>
+        <% if (userStatus !== 'PENDING') { %>
+          <button class="acc-copy-btn" onclick="copyToClipboard('<%= account.swift %>', this)"><i data-lucide="copy"></i></button>
+        <% } %>
+      </div>
+
+    </div>
+
+    <a href="/support" class="acc-plan-card" style="margin-top: 32px;">
+      <div class="acc-plan-icon" style="background: var(--mob-surface); border: 1px solid var(--mob-border); color: var(--mob-text-muted);"><i data-lucide="life-buoy"></i></div>
+      <div class="acc-plan-text">
+        <h4>Help & Support</h4>
+        <p>If you need any assistance, contact our 24/7 team.</p>
+      </div>
+    </a>
+
+  </main>
+
+  <div class="upgrade-sheet-overlay" id="upgradeOverlay" onclick="closeUpgradeSheet()"></div>
+  <div class="upgrade-sheet" id="upgradeSheet">
+    <div class="modal-header">
+      <h2>Choose your plan</h2>
+      <button class="modal-close-btn" onclick="closeUpgradeSheet()"><i data-lucide="x" style="width: 16px;"></i></button>
+    </div>
+
+    <div class="plan-option <%= account.account_tier === 'Basic' ? 'active' : '' %>">
+      <div class="plan-text">
+        <h4>Basic</h4>
+        <p>€10,000/day limit</p>
+      </div>
+      <% if(account.account_tier === 'Basic') { %>
+        <span class="badge-active">ACTIVE</span>
+      <% } else { %>
+        <form action="/account/upgrade" method="POST" style="margin: 0;">
+          <input type="hidden" name="tier" value="Basic">
+          <button type="submit" class="btn-select-plan">Select</button>
+        </form>
+      <% } %>
+    </div>
+
+    <div class="plan-option <%= account.account_tier === 'Standard' ? 'active' : '' %>">
+      <div class="plan-text">
+        <h4>Standard</h4>
+        <p>€50,000/day limit</p>
+      </div>
+      <% if(account.account_tier === 'Standard') { %>
+        <span class="badge-active">ACTIVE</span>
+      <% } else { %>
+        <form action="/account/upgrade" method="POST" style="margin: 0;">
+          <input type="hidden" name="tier" value="Standard">
+          <button type="submit" class="btn-select-plan">Select</button>
+        </form>
+      <% } %>
+    </div>
+
+    <div class="plan-option <%= account.account_tier === 'Premium' ? 'active' : '' %>">
+      <div class="plan-text">
+        <h4>Premium</h4>
+        <p>€100,000/day limit</p>
+      </div>
+      <% if(account.account_tier === 'Premium') { %>
+        <span class="badge-active">ACTIVE</span>
+      <% } else { %>
+        <form action="/account/upgrade" method="POST" style="margin: 0;">
+          <input type="hidden" name="tier" value="Premium">
+          <button type="submit" class="btn-select-plan">Select</button>
+        </form>
+      <% } %>
+    </div>
+
+    <div class="plan-option <%= account.account_tier === 'VIP' ? 'active' : '' %>">
+      <div class="plan-text">
+        <h4>VIP</h4>
+        <p>€250,000/day limit</p>
+      </div>
+      <% if(account.account_tier === 'VIP') { %>
+        <span class="badge-active">ACTIVE</span>
+      <% } else { %>
+        <form action="/account/upgrade" method="POST" style="margin: 0;">
+          <input type="hidden" name="tier" value="VIP">
+          <button type="submit" class="btn-select-plan">Select</button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+
+  <nav class="mob-bottom-nav">
+    <a href="/dashboard" class="mob-nav-link">
+      <span class="mob-nav-icon"><i data-lucide="home"></i></span>
+      Home
+    </a>
+    <a href="/account" class="mob-nav-link active">
+      <span class="mob-nav-icon"><i data-lucide="credit-card"></i></span>
+      Accounts
+    </a>
+    <a href="/transfers" class="mob-nav-link">
+      <span class="mob-nav-icon"><i data-lucide="arrow-right-left"></i></span>
+      Transactions
+    </a>
+    <a href="/support" class="mob-nav-link">
+      <span class="mob-nav-icon"><i data-lucide="headphones"></i></span>
+      Support
+    </a>
+  </nav>
+
+  <script>
+    lucide.createIcons();
+    
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    async function copyToClipboard(text, btnElement) {
+      try {
+        await navigator.clipboard.writeText(text);
+        const originalContent = btnElement.innerHTML;
+        btnElement.innerHTML = '<i data-lucide="check" style="width: 16px; height: 16px; stroke-width: 3px;"></i>';
+        lucide.createIcons(); 
+        
+        btnElement.style.background = 'var(--mob-primary-dim)';
+        btnElement.style.color = 'var(--mob-primary)';
+        
+        showToast('Copied to clipboard');
+
+        setTimeout(() => {
+          btnElement.innerHTML = originalContent;
+          lucide.createIcons(); 
+          btnElement.style.background = 'var(--mob-bg)';
+        }, 2000);
+      } catch (err) {
+        showToast('Failed to copy');
+      }
+    }
+
+    function openUpgradeSheet() {
+      document.getElementById('upgradeOverlay').classList.add('open');
+      setTimeout(() => document.getElementById('upgradeSheet').classList.add('open'), 10);
+    }
+
+    function closeUpgradeSheet() {
+      document.getElementById('upgradeSheet').classList.remove('open');
+      setTimeout(() => document.getElementById('upgradeOverlay').classList.remove('open'), 300);
+    }
+  </script>
+
+  <%- include('partials/profile_menu') %>
+</body>
+</html>

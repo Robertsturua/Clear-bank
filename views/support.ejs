@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Prismapay | Support</title>
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="white" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/mobile.css">
+  
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    body { background-color: var(--mob-bg); }
+    
+    .sup-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; padding-top: max(20px, env(safe-area-inset-top)); position: sticky; top: 0; z-index: 100;
+    }
+    .sup-header h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: var(--mob-text); }
+
+    /* Navy Hero Greeting Card */
+    .sup-hero-card {
+      background: var(--mob-primary); border-radius: var(--mob-radius-lg); padding: 24px; margin: 10px 20px 24px 20px; color: white; box-shadow: var(--mob-shadow-md);
+    }
+    .sup-hero-card h2 { font-size: 24px; font-weight: 800; margin: 0 0 6px 0; letter-spacing: -0.5px; }
+    .sup-hero-card p { font-size: 15px; color: rgba(255, 255, 255, 0.8); margin: 0; line-height: 1.4; }
+
+    /* Compact Security Card */
+    .compact-security-card {
+      background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--mob-radius-md); margin: 0 20px 32px 20px; padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: var(--mob-shadow-sm);
+    }
+    .compact-security-card.is-frozen { background: var(--mob-surface); border: 1px solid var(--mob-border); }
+    
+    .csc-left { display: flex; align-items: center; gap: 12px; flex: 1; }
+    .csc-icon { color: #ef4444; display: flex; align-items: center; justify-content: center; }
+    .compact-security-card.is-frozen .csc-icon { color: var(--mob-primary); }
+    .csc-icon svg { width: 24px; height: 24px; stroke-width: 2px; }
+    
+    .csc-text h4 { margin: 0 0 2px 0; font-size: 15px; font-weight: 700; color: #991b1b; }
+    .compact-security-card.is-frozen .csc-text h4 { color: var(--mob-text); }
+    
+    .csc-text p { margin: 0; font-size: 13px; color: #b91c1c; font-weight: 500; line-height: 1.4; }
+    .compact-security-card.is-frozen .csc-text p { color: var(--mob-text-muted); }
+    
+    .btn-csc-freeze {
+      background: #ef4444; color: white; border: none; padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; white-space: nowrap; transition: transform 0.2s;
+    }
+    .btn-csc-freeze:active { transform: scale(0.96); }
+    
+    .btn-csc-unfreeze {
+      background: var(--mob-primary-dim); color: var(--mob-primary); border: none; padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; white-space: nowrap; transition: transform 0.2s;
+    }
+    .btn-csc-unfreeze:active { transform: scale(0.96); }
+
+    /* Expanded Contact Methods List */
+    .sup-section-title {
+      margin: 0 24px 12px 24px; font-size: 14px; font-weight: 700; color: var(--mob-text-muted); text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .sup-contact-grid { display: flex; flex-direction: column; gap: 16px; margin: 0 20px 32px 20px; }
+    .sup-contact-card {
+      background: var(--mob-surface); border: 1px solid var(--mob-border); border-radius: var(--mob-radius-lg); padding: 20px; display: flex; flex-direction: row; align-items: center; gap: 16px; box-shadow: var(--mob-shadow-sm); transition: transform 0.2s; cursor: pointer; text-align: left; width: 100%;
+    }
+    .sup-contact-card:active { transform: scale(0.96); }
+    .sup-contact-icon {
+      width: 48px; height: 48px; flex-shrink: 0; background: var(--mob-primary-dim); color: var(--mob-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    }
+    .sup-contact-icon svg { width: 24px; height: 24px; stroke-width: 2.5px; }
+    .sup-contact-card-text { flex: 1; }
+    .sup-contact-card h4 { margin: 0 0 6px 0; font-size: 16px; font-weight: 700; color: var(--mob-text); }
+    .sup-contact-card p { margin: 0; font-size: 13px; color: var(--mob-text-muted); font-weight: 500; line-height: 1.4; }
+
+    /* Modals & Bottom Sheets */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(5, 16, 36, 0.6); z-index: 300; display: none; opacity: 0; transition: opacity 0.3s;
+    }
+    .modal-sheet {
+      position: fixed; bottom: 0; left: 0; right: 0; background: var(--mob-bg); border-radius: 24px 24px 0 0; z-index: 301; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom));
+    }
+    .modal-sheet.open { transform: translateY(0); }
+    .modal-overlay.open { display: block; opacity: 1; }
+    
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .modal-header h2 { margin: 0; font-size: 20px; font-weight: 800; color: var(--mob-text); }
+    .modal-close-btn { background: var(--mob-surface); border: 1px solid var(--mob-border); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+    /* Password Input Formatting */
+    .form-group { margin-bottom: 24px; }
+    .form-group label { display: block; font-size: 14px; font-weight: 600; color: var(--mob-text); margin-bottom: 8px; }
+    .form-control { width: 100%; box-sizing: border-box; background: var(--mob-surface); border: 1px solid var(--mob-border); padding: 14px 16px; border-radius: 12px; font-size: 16px; outline: none; transition: 0.2s; font-family: 'Inter', sans-serif; }
+    .form-control:focus { border-color: var(--mob-primary); box-shadow: 0 0 0 3px var(--mob-primary-dim); }
+    
+    .btn-submit-freeze {
+      background: #ef4444; color: white; border: none; padding: 16px 20px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; font-size: 15px; transition: transform 0.2s;
+    }
+    .btn-submit-freeze:active { transform: scale(0.96); }
+
+    /* Email List Styling */
+    .email-row {
+      background: var(--mob-surface); border: 1px solid var(--mob-border); border-radius: 16px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .email-info h4 { margin: 0 0 4px 0; font-size: 16px; font-weight: 700; color: var(--mob-text); }
+    .email-info p { margin: 0; font-size: 14px; font-family: monospace; color: var(--mob-text-muted); }
+    .copy-btn {
+      background: var(--mob-bg); color: var(--mob-primary); border: 1px solid var(--mob-border); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
+    }
+    .copy-btn svg { width: 18px; height: 18px; stroke-width: 2.5px; }
+
+    /* Chat Interface Styling */
+    .chat-container {
+      background: var(--mob-surface); border-radius: 16px; border: 1px solid var(--mob-border); height: 400px; display: flex; flex-direction: column; overflow: hidden;
+    }
+    .chat-messages {
+      flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: var(--mob-bg);
+    }
+    .chat-bubble {
+      background: white; border: 1px solid var(--mob-border); padding: 12px 16px; border-radius: 16px 16px 16px 4px; max-width: 85%; font-size: 14px; line-height: 1.5; color: var(--mob-text); box-shadow: var(--mob-shadow-sm);
+    }
+    .chat-input-area {
+      padding: 12px; background: var(--mob-surface); border-top: 1px solid var(--mob-border); display: flex; gap: 12px;
+    }
+    .chat-input-area input {
+      flex: 1; background: var(--mob-bg); border: 1px solid var(--mob-border); border-radius: 20px; padding: 10px 16px; font-size: 14px; outline: none;
+    }
+    .chat-input-area button {
+      background: var(--mob-primary); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+    .chat-input-area button svg { width: 18px; height: 18px; }
+
+    /* Custom Toast Notification */
+    .toast-notif {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--mob-primary); color: white; padding: 12px 24px; border-radius: 20px; font-size: 14px; font-weight: 600; box-shadow: var(--mob-shadow-md); z-index: 999; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); text-align: center; width: auto; white-space: nowrap;
+    }
+    .toast-notif.show { transform: translateX(-50%) translateY(0); }
+    
+    .mob-nav-icon svg { width: 24px; height: 24px; stroke-width: 2px; margin-bottom: 2px; }
+  </style>
+</head>
+<body>
+
+  <div id="toast" class="toast-notif">Message</div>
+
+  <header class="sup-header">
+    <h1>Support</h1>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button class="pwa-install-btn" style="display: none; background: var(--mob-accent); color: var(--mob-primary); border: none; padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 13px; align-items: center; gap: 6px; cursor: pointer; box-shadow: var(--mob-shadow-sm);" onclick="installPWA()">
+        App <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+      </button>
+      <button class="mob-avatar-mini" onclick="openProfileMenu()">
+        <%= typeof username !== 'undefined' && username ? username.charAt(0).toUpperCase() : 'U' %>
+      </button>
+    </div>
+  </header>
+
+  <main class="mob-main-content" style="padding-top: 0; padding-bottom: 100px;">
+    
+    <% 
+      // Link the "Frozen" UI strictly to the user's Suspended/Frozen DB Status
+      const fullName = (typeof profile !== 'undefined' && profile.full_name) ? profile.full_name : ((typeof account !== 'undefined' && account.name) ? account.name : 'Valued Client');
+      const isFrozen = (typeof userStatus !== 'undefined' && (userStatus === 'SUSPENDED' || userStatus === 'FROZEN'));
+    %>
+
+    <div class="sup-hero-card">
+      <h2>Welcome, <%= fullName %></h2>
+      <p>How can we assist you with your account today?</p>
+    </div>
+
+    <div class="compact-security-card <%= isFrozen ? 'is-frozen' : '' %>">
+      <div class="csc-left">
+        <div class="csc-icon">
+          <i data-lucide="<%= isFrozen ? 'lock' : 'shield-alert' %>"></i>
+        </div>
+        <div class="csc-text">
+          <h4><%= isFrozen ? 'Account Frozen' : 'Account Security' %></h4>
+          <% if (isFrozen) { %>
+            <p>Your account is currently frozen. All outgoing transfers are securely disabled.</p>
+          <% } else { %>
+            <p>If you suspect unauthorized activity, freeze your account immediately.</p>
+          <% } %>
+        </div>
+      </div>
+      <div class="csc-right">
+        <% if (isFrozen) { %>
+          <button class="btn-csc-unfreeze" onclick="openUnfreezeModal()">Unfreeze</button>
+        <% } else { %>
+          <button class="btn-csc-freeze" onclick="openFreezeModal()">Freeze</button>
+        <% } %>
+      </div>
+    </div>
+
+    <h3 class="sup-section-title">Contact Us</h3>
+    <div class="sup-contact-grid">
+      <button class="sup-contact-card" onclick="openChatModal()">
+        <div class="sup-contact-icon"><i data-lucide="message-square"></i></div>
+        <div class="sup-contact-card-text">
+          <h4>Live Chat</h4>
+          <p>Connect securely with an agent in real-time. Best for urgent account inquiries.</p>
+        </div>
+      </button>
+      
+      <button class="sup-contact-card" onclick="openEmailModal()">
+        <div class="sup-contact-icon"><i data-lucide="mail"></i></div>
+        <div class="sup-contact-card-text">
+          <h4>Email Support</h4>
+          <p>Reach out to our dedicated teams for document submission or compliance matters.</p>
+        </div>
+      </button>
+    </div>
+
+  </main>
+
+  <nav class="mob-bottom-nav">
+    <a href="/dashboard" class="mob-nav-link">
+      <span class="mob-nav-icon"><i data-lucide="home"></i></span>
+      Home
+    </a>
+    <a href="/account" class="mob-nav-link">
+      <span class="mob-nav-icon"><i data-lucide="credit-card"></i></span>
+      Accounts
+    </a>
+    <a href="/transfers" class="mob-nav-link">
+      <span class="mob-nav-icon"><i data-lucide="arrow-right-left"></i></span>
+      Transactions
+    </a>
+    <a href="/support" class="mob-nav-link active">
+      <span class="mob-nav-icon"><i data-lucide="headphones"></i></span>
+      Support
+    </a>
+  </nav>
+
+  <div class="modal-overlay" id="freezeOverlay" onclick="closeFreezeModal()"></div>
+  <div class="modal-sheet" id="freezeSheet">
+    <div class="modal-header">
+      <h2>Confirm Freeze</h2>
+      <button class="modal-close-btn" onclick="closeFreezeModal()"><i data-lucide="x" style="width: 16px; color: var(--mob-text);"></i></button>
+    </div>
+    <p style="color: var(--mob-text-muted); margin-bottom: 24px; font-size: 14px; line-height: 1.5;">
+      Freezing your account will immediately block all outgoing transfers and payments. To proceed, please verify your identity.
+    </p>
+    
+    <form action="/account/freeze" method="POST">
+      <div class="form-group">
+        <label>Account Password</label>
+        <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
+      </div>
+      <button type="submit" class="btn-submit-freeze">Confirm & Freeze Account</button>
+    </form>
+  </div>
+
+  <div class="modal-overlay" id="unfreezeOverlay" onclick="closeUnfreezeModal()"></div>
+  <div class="modal-sheet" id="unfreezeSheet">
+    <div class="modal-header">
+      <h2>Request Unfreeze</h2>
+      <button class="modal-close-btn" onclick="closeUnfreezeModal()"><i data-lucide="x" style="width: 16px; color: var(--mob-text);"></i></button>
+    </div>
+    <div style="text-align: center; padding: 20px 0;">
+      <div style="width: 64px; height: 64px; background: var(--mob-primary-dim); color: var(--mob-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
+        <i data-lucide="shield-check" style="width: 32px; height: 32px;"></i>
+      </div>
+      <h3 style="margin: 0 0 12px 0; font-size: 18px; color: var(--mob-text);">Request Received</h3>
+      <p style="color: var(--mob-text-muted); font-size: 15px; line-height: 1.5; margin: 0 0 24px 0;">
+        For your security, your account cannot be automatically unfrozen. A Clear.Bank support agent will contact you as soon as possible to verify your identity.
+      </p>
+      <button type="button" class="btn-submit-freeze" style="background: var(--mob-primary); color: white;" onclick="closeUnfreezeModal()">Understood</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="emailOverlay" onclick="closeEmailModal()"></div>
+  <div class="modal-sheet" id="emailSheet">
+    <div class="modal-header">
+      <h2>Email Support</h2>
+      <button class="modal-close-btn" onclick="closeEmailModal()"><i data-lucide="x" style="width: 16px; color: var(--mob-text);"></i></button>
+    </div>
+
+    <div class="email-row">
+      <div class="email-info">
+        <h4>General Support</h4>
+        <p>support@clear.bank</p>
+      </div>
+      <button class="copy-btn" onclick="copyToClipboard('support@clear.bank', this)"><i data-lucide="copy"></i></button>
+    </div>
+
+    <div class="email-row">
+      <div class="email-info">
+        <h4>Security & Compliance</h4>
+        <p>compliance@clear.bank</p>
+      </div>
+      <button class="copy-btn" onclick="copyToClipboard('compliance@clear.bank', this)"><i data-lucide="copy"></i></button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="chatOverlay" onclick="closeChatModal()"></div>
+  <div class="modal-sheet" id="chatSheet" style="padding-bottom: max(16px, env(safe-area-inset-bottom));">
+    <div class="modal-header">
+      <h2>Live Chat</h2>
+      <button class="modal-close-btn" onclick="closeChatModal()"><i data-lucide="x" style="width: 16px; color: var(--mob-text);"></i></button>
+    </div>
+
+    <div class="chat-container">
+      <div class="chat-messages">
+        <div style="text-align: center; font-size: 12px; color: var(--mob-text-muted); margin-bottom: 8px;">System Automated Message</div>
+        <div class="chat-bubble">
+          <strong>Clear.Bank Support</strong><br>
+          Hello <%= fullName %>, welcome to Clear.Bank Support.<br><br>
+          Please be advised that we are currently experiencing a high volume of inquiries, which may result in longer wait times than usual. An agent will be with you as soon as possible to assist you. Thank you for your patience.
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <input type="text" placeholder="Type a message...">
+        <button><i data-lucide="send"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      if (isError) toast.style.background = '#ef4444';
+      else toast.style.background = 'var(--mob-primary)';
+      
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    // Capture backend errors or messages passed through the URL/render data
+    document.addEventListener('DOMContentLoaded', () => {
+      <% if (typeof msg !== 'undefined' && msg) { %> showToast('<%= msg %>'); <% } %>
+      <% if (typeof error !== 'undefined' && error) { %> showToast('<%= error %>', true); <% } %>
+    });
+
+    async function copyToClipboard(text, btnElement) {
+      try {
+        await navigator.clipboard.writeText(text);
+        const originalContent = btnElement.innerHTML;
+        btnElement.innerHTML = '<i data-lucide="check" style="width: 16px; height: 16px; stroke-width: 3px;"></i>';
+        lucide.createIcons(); 
+        
+        btnElement.style.background = 'var(--mob-primary-dim)';
+        btnElement.style.color = 'var(--mob-primary)';
+        
+        showToast('Email copied to clipboard');
+
+        setTimeout(() => {
+          btnElement.innerHTML = originalContent;
+          lucide.createIcons(); 
+          btnElement.style.background = 'var(--mob-surface)';
+        }, 2000);
+      } catch (err) {
+        showToast('Failed to copy', true);
+      }
+    }
+
+    // Modal Control Functions
+    function openFreezeModal() {
+      document.getElementById('freezeOverlay').classList.add('open');
+      setTimeout(() => document.getElementById('freezeSheet').classList.add('open'), 10);
+    }
+    function closeFreezeModal() {
+      document.getElementById('freezeSheet').classList.remove('open');
+      setTimeout(() => document.getElementById('freezeOverlay').classList.remove('open'), 300);
+    }
+
+    function openUnfreezeModal() {
+      document.getElementById('unfreezeOverlay').classList.add('open');
+      setTimeout(() => document.getElementById('unfreezeSheet').classList.add('open'), 10);
+    }
+    function closeUnfreezeModal() {
+      document.getElementById('unfreezeSheet').classList.remove('open');
+      setTimeout(() => document.getElementById('unfreezeOverlay').classList.remove('open'), 300);
+    }
+
+    function openEmailModal() {
+      document.getElementById('emailOverlay').classList.add('open');
+      setTimeout(() => document.getElementById('emailSheet').classList.add('open'), 10);
+    }
+    function closeEmailModal() {
+      document.getElementById('emailSheet').classList.remove('open');
+      setTimeout(() => document.getElementById('emailOverlay').classList.remove('open'), 300);
+    }
+
+    function openChatModal() {
+      document.getElementById('chatOverlay').classList.add('open');
+      setTimeout(() => document.getElementById('chatSheet').classList.add('open'), 10);
+    }
+    function closeChatModal() {
+      document.getElementById('chatSheet').classList.remove('open');
+      setTimeout(() => document.getElementById('chatOverlay').classList.remove('open'), 300);
+    }
+
+    // PWA Install Logic
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const installBtns = document.querySelectorAll('.pwa-install-btn');
+      installBtns.forEach(btn => btn.style.display = 'flex');
+    });
+
+    function installPWA() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') { console.log('User accepted the install prompt'); }
+          deferredPrompt = null;
+        });
+      }
+    }
+  </script>
+  
+  <%- include('partials/profile_menu') %>
+</body>
+</html>

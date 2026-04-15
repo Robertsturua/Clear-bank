@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Clear.Bank | Communications</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --admin-navy: #051024; --admin-cyan: #00E5C4; --bg-color: #f4f7f9; 
+      --surface: #ffffff; --text-main: #051024; --text-muted: #64748b; 
+      --border: #e2e8f0; --font: 'Inter', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); }
+    body { background-color: var(--bg-color); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+    
+    .sidebar { width: 280px; background: var(--admin-navy); color: white; display: flex; flex-direction: column; padding: 24px 20px; }
+    .brand { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 40px; padding: 0 12px; display: flex; align-items: center; gap: 10px; }
+    .nav-menu { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .nav-link { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; color: #94a3b8; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.2s; }
+    .nav-link:hover { background: rgba(255,255,255,0.05); color: white; }
+    .nav-link.active { background: var(--admin-cyan); color: var(--admin-navy); }
+    .nav-link svg { width: 18px; height: 18px; }
+
+    .main-content { flex: 1; display: flex; flex-direction: column; padding: 40px; }
+    .page-header { margin-bottom: 24px; }
+    .page-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+    
+    .chat-container { display: flex; flex: 1; background: var(--surface); border-radius: 16px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+    
+    /* Left Side: User List */
+    .user-list { width: 320px; border-right: 1px solid var(--border); background: #f8fafc; overflow-y: auto; }
+    .user-list-header { padding: 24px 20px; font-weight: 800; font-size: 14px; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); letter-spacing: 0.5px; }
+    .user-card { padding: 20px; border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.2s; display: flex; gap: 12px; align-items: center; }
+    .user-card:hover, .user-card.active { background: white; border-left: 4px solid var(--admin-navy); padding-left: 16px; }
+    .user-card-icon { width: 40px; height: 40px; background: var(--bg-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--admin-navy); flex-shrink: 0; }
+    .user-card-info { flex: 1; overflow: hidden; }
+    .user-card-info strong { display: block; font-size: 15px; color: var(--text-main); margin-bottom: 4px; }
+    .user-card-info span { font-size: 13px; color: var(--text-muted); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Right Side: Chat Box */
+    .chat-area { flex: 1; display: flex; flex-direction: column; background: #ffffff; }
+    .chat-header { padding: 24px; border-bottom: 1px solid var(--border); font-weight: 800; font-size: 18px; display: flex; align-items: center; gap: 12px; }
+    
+    .messages { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; background: var(--bg-color); }
+    .msg { padding: 14px 20px; border-radius: 16px; font-size: 14px; max-width: 65%; line-height: 1.5; box-shadow: var(--mob-shadow-sm); }
+    .msg.admin { background: var(--admin-navy); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .msg.user { background: white; border: 1px solid var(--border); color: var(--text-main); align-self: flex-start; border-bottom-left-radius: 4px; }
+
+    .input-area { padding: 24px; border-top: 1px solid var(--border); display: flex; gap: 12px; background: #ffffff; }
+    .input-area input { flex: 1; padding: 16px 20px; border: 1px solid var(--border); border-radius: 12px; outline: none; font-size: 15px; font-family: var(--font); background: #f8fafc; transition: 0.2s; }
+    .input-area input:focus { border-color: var(--admin-navy); background: white; }
+    .input-area button { background: var(--admin-navy); color: white; border: none; padding: 0 24px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+    .input-area button:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
+    .input-area button:hover:not(:disabled) { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><i data-lucide="shield-check"></i> God Mode</div>
+    <nav class="nav-menu">
+      <a href="/admin" class="nav-link"><i data-lucide="layout-dashboard"></i> Control Center</a>
+      <a href="/admin/users" class="nav-link"><i data-lucide="users"></i> Manage Users</a>
+      <a href="/admin/comms" class="nav-link active"><i data-lucide="message-square"></i> Communications</a>
+      <a href="/dashboard" class="nav-link" style="margin-top: auto; color: var(--admin-cyan);"><i data-lucide="log-out"></i> Back to App</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Support Desk</h1>
+    </div>
+    
+    <div class="chat-container">
+      <div class="user-list">
+        <div class="user-list-header">Active Client Threads</div>
+        <% users.forEach(u => { %>
+          <div class="user-card" onclick="selectUser(<%= u.id %>, '@<%= u.username %>', this)">
+            <div class="user-card-icon"><i data-lucide="user"></i></div>
+            <div class="user-card-info">
+              <strong>@<%= u.username %></strong>
+              <span><%= u.last_msg ? u.last_msg : 'No messages yet' %></span>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+
+      <div class="chat-area">
+        <div class="chat-header" id="chatTarget"><i data-lucide="message-circle"></i> Select a user to begin chatting</div>
+        <div class="messages" id="chatBox">
+          <div style="text-align: center; color: var(--text-muted); margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+            <i data-lucide="inbox" style="width: 48px; height: 48px; opacity: 0.5;"></i>
+            No user selected.
+          </div>
+        </div>
+        <div class="input-area">
+          <input type="text" id="chatInput" placeholder="Type your reply to the client..." disabled onkeypress="if(event.key === 'Enter') sendMessage()">
+          <button id="sendBtn" onclick="sendMessage()" disabled><i data-lucide="send" style="width: 16px;"></i> Send</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    let activeUserId = null;
+
+    function selectUser(id, username, el) {
+      activeUserId = id;
+      
+      // Highlight active user visually
+      document.querySelectorAll('.user-card').forEach(card => card.classList.remove('active'));
+      if(el) el.classList.add('active');
+
+      document.getElementById('chatTarget').innerHTML = `<i data-lucide="user"></i> Chatting with ${username}`;
+      lucide.createIcons();
+      document.getElementById('chatInput').disabled = false;
+      document.getElementById('sendBtn').disabled = false;
+      loadMessages();
+    }
+
+    async function loadMessages() {
+      if (!activeUserId) return;
+      const res = await fetch(`/admin/api/chat/${activeUserId}`);
+      const msgs = await res.json();
+      const box = document.getElementById('chatBox');
+      
+      box.innerHTML = '';
+      
+      if(msgs.length === 0) box.innerHTML = '<div style="text-align: center; color: #64748b; margin-top: 20px;">No messages yet. Send the first message!</div>';
+
+      msgs.forEach(m => {
+        box.innerHTML += `<div class="msg ${m.sender}">${m.content}</div>`;
+      });
+      box.scrollTop = box.scrollHeight;
+    }
+
+    async function sendMessage() {
+      if (!activeUserId) return;
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+      
+      input.value = '';
+      const box = document.getElementById('chatBox');
+      box.innerHTML += `<div class="msg admin">${text}</div>`;
+      box.scrollTop = box.scrollHeight;
+
+      await fetch(`/admin/api/chat/${activeUserId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: text })
+      });
+    }
+   
+    setInterval(loadMessages, 3000);
+  </script>
+</body>
+</html>

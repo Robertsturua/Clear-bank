@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Prismapay | Add Money</title>
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="white" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/mobile.css">
+  
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    body { 
+      background-color: var(--mob-bg);
+      overflow-x: hidden; 
+    }
+    
+    .receive-header {
+      display: flex;
+      align-items: center; 
+      justify-content: space-between;
+      padding: 16px 20px; 
+      padding-top: max(20px, env(safe-area-inset-top));
+      background: var(--mob-bg); 
+      position: sticky; 
+      top: 0; 
+      z-index: 100;
+    }
+    
+    .receive-header h1 { 
+      margin: 0;
+      font-size: 20px; 
+      font-weight: 800; 
+      color: var(--mob-text);
+    }
+    
+    .btn-back { 
+      background: var(--mob-surface);
+      border: 1px solid var(--mob-border); 
+      width: 36px; 
+      height: 36px; 
+      border-radius: 50%; 
+      display: flex;
+      align-items: center; 
+      justify-content: center; 
+      cursor: pointer; 
+      color: var(--mob-text);
+      box-shadow: var(--mob-shadow-sm);
+    }
+    
+    .section-title { 
+      margin: 20px 24px 12px 24px;
+      font-size: 13px; 
+      font-weight: 700;
+      color: var(--mob-text-muted); 
+      text-transform: uppercase; 
+      letter-spacing: 0.5px;
+    }
+
+    /* Bank Details Card */
+    .bank-details-card {
+      background: var(--mob-surface);
+      margin: 0 20px 24px 20px; 
+      border-radius: 20px; 
+      padding: 24px 20px; 
+      border: 1px solid var(--mob-border); 
+      box-shadow: var(--mob-shadow-sm); 
+      position: relative; 
+      overflow: hidden;
+    }
+    
+    .qr-placeholder { 
+      width: 64px; 
+      height: 64px;
+      background: var(--mob-bg); 
+      border: 1px dashed var(--mob-border);
+      border-radius: 12px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      margin: 0 auto 24px auto;
+      color: var(--mob-primary);
+    }
+    
+    .detail-row { 
+      display: flex;
+      justify-content: space-between; 
+      align-items: flex-start; 
+      padding: 16px 0;
+      border-bottom: 1px solid var(--mob-border);
+    }
+    
+    .detail-row:last-child { 
+      border-bottom: none; 
+      padding-bottom: 0;
+    }
+    
+    .detail-label { 
+      font-size: 13px; 
+      color: var(--mob-text-muted);
+      font-weight: 600; 
+      margin-bottom: 4px;
+    }
+    
+    .detail-value { 
+      font-size: 16px;
+      font-weight: 700; 
+      color: var(--mob-text); 
+      font-family: monospace; 
+      letter-spacing: 0.5px;
+    }
+    
+    .copy-btn {
+      background: var(--mob-bg);
+      color: var(--mob-primary);
+      border: 1px solid var(--mob-border); 
+      width: 36px; 
+      height: 36px; 
+      border-radius: 10px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      cursor: pointer;
+      transition: 0.2s;
+      flex-shrink: 0;
+    }
+    
+    .copy-btn svg { 
+      width: 16px;
+      height: 16px; 
+      stroke-width: 2.5px;
+    }
+
+    .btn-share {
+      background: var(--mob-primary-dim); 
+      color: var(--mob-primary);
+      border: none; 
+      padding: 14px 20px;
+      border-radius: 16px; 
+      font-weight: 700; 
+      font-size: 15px; 
+      width: calc(100% - 40px); 
+      margin: 0 20px; 
+      cursor: pointer;
+      display: flex; 
+      align-items: center;
+      justify-content: center; 
+      gap: 8px; 
+      transition: transform 0.2s;
+    }
+    
+    .btn-share:active { 
+      transform: scale(0.98);
+    }
+
+    /* Custom Toast Notification */
+    .toast-notif { 
+      position: fixed;
+      top: 20px;
+      left: 50%; 
+      transform: translateX(-50%) translateY(-100px); 
+      background: var(--mob-primary); 
+      color: white; 
+      padding: 12px 24px; 
+      border-radius: 20px; 
+      font-size: 14px; 
+      font-weight: 600;
+      box-shadow: var(--mob-shadow-md);
+      z-index: 999; 
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+      text-align: center; 
+      width: auto; 
+      white-space: nowrap;
+    }
+    
+    .toast-notif.show { 
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="toast" class="toast-notif">Message</div>
+
+  <header class="receive-header">
+    <button class="btn-back" onclick="window.history.back()">
+      <i data-lucide="arrow-left" style="width: 18px;"></i>
+    </button>
+    <h1>Add Money</h1>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button class="pwa-install-btn" style="display: none; background: var(--mob-accent); color: var(--mob-primary); border: none; padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 13px; align-items: center; gap: 6px; cursor: pointer; box-shadow: var(--mob-shadow-sm);" onclick="installPWA()">
+        App <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+      </button>
+      <button class="mob-avatar-mini" onclick="openProfileMenu()">
+        <%= typeof username !== 'undefined' && username ? username.charAt(0).toUpperCase() : 'U' %>
+      </button>
+    </div>
+  </header>
+
+  <main class="mob-main-content" style="padding-top: 10px; padding-bottom: 100px;">
+    
+    <h3 class="section-title">Bank Transfer Details</h3>
+    <div class="bank-details-card">
+      <div class="qr-placeholder">
+        <i data-lucide="qr-code" style="width: 32px; height: 32px;"></i>
+      </div>
+      
+      <div class="detail-row">
+        <div>
+          <div class="detail-label">Account Holder</div>
+          <div class="detail-value"><%= account.name %></div>
+        </div>
+      </div>
+      
+      <div class="detail-row">
+        <div>
+          <div class="detail-label">IBAN</div>
+          <div class="detail-value"><%= account.iban %></div>
+        </div>
+        <button class="copy-btn" onclick="copyToClipboard('<%= account.iban %>', this)">
+          <i data-lucide="copy"></i>
+        </button>
+      </div>
+      
+      <div class="detail-row">
+        <div>
+          <div class="detail-label">BIC / SWIFT</div>
+          <div class="detail-value"><%= account.swift %></div>
+        </div>
+        <button class="copy-btn" onclick="copyToClipboard('<%= account.swift %>', this)">
+          <i data-lucide="copy"></i>
+        </button>
+      </div>
+    </div>
+
+    <button class="btn-share" onclick="showToast('Opening Share menu...')">
+      <i data-lucide="share" style="width: 18px;"></i>
+      Share Account Details
+    </button>
+
+  </main>
+
+  <nav class="mob-bottom-nav">
+    <a href="/dashboard" class="mob-nav-link">
+      <span class="mob-nav-icon"><i data-lucide="home"></i></span>
+      Home
+    </a>
+    <a href="/account" class="mob-nav-link">
+      <span class="mob-nav-icon"><i data-lucide="credit-card"></i></span>
+      Accounts
+    </a>
+    <a href="/transfers" class="mob-nav-link">
+      <span class="mob-nav-icon"><i data-lucide="arrow-right-left"></i></span>
+      Transactions
+    </a>
+    <a href="/support" class="mob-nav-link">
+      <span class="mob-nav-icon"><i data-lucide="headphones"></i></span>
+      Support
+    </a>
+  </nav>
+
+  <script>
+    lucide.createIcons();
+    
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    async function copyToClipboard(text, btnElement) {
+      try {
+        await navigator.clipboard.writeText(text);
+        const originalContent = btnElement.innerHTML;
+        btnElement.innerHTML = '<i data-lucide="check" style="width: 16px; height: 16px; stroke-width: 3px;"></i>';
+        lucide.createIcons(); 
+        
+        btnElement.style.background = 'var(--mob-primary-dim)';
+        btnElement.style.color = 'var(--mob-primary)';
+        
+        showToast('Copied to clipboard');
+
+        setTimeout(() => {
+          btnElement.innerHTML = originalContent;
+          lucide.createIcons(); 
+          btnElement.style.background = 'var(--mob-bg)';
+          btnElement.style.color = 'var(--mob-primary)';
+        }, 2000);
+      } catch (err) {
+        showToast('Failed to copy');
+      }
+    }
+
+    // PWA Install Logic
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const installBtns = document.querySelectorAll('.pwa-install-btn');
+      installBtns.forEach(btn => btn.style.display = 'flex');
+    });
+
+    function installPWA() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') { console.log('User accepted the install prompt'); }
+          deferredPrompt = null;
+        });
+      }
+    }
+  </script>
+
+  <%- include('partials/profile_menu') %>
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Prismapay | Personal Details</title>
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="white" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/mobile.css">
+  
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    body { background-color: var(--mob-bg); overflow-x: hidden; }
+    
+    .profile-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; padding-top: max(20px, env(safe-area-inset-top));
+      background: var(--mob-bg); position: sticky; top: 0; z-index: 100;
+    }
+    .profile-header h1 { margin: 0; font-size: 20px; font-weight: 800; color: var(--mob-text); }
+    .btn-back { background: var(--mob-surface); border: 1px solid var(--mob-border); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--mob-text); box-shadow: var(--mob-shadow-sm); transition: transform 0.2s;}
+    .btn-back:active { transform: scale(0.95); }
+    
+    /* Top Avatar Section */
+    .avatar-section {
+      display: flex; flex-direction: column; align-items: center; padding: 24px 20px 32px 20px;
+    }
+    .avatar-circle {
+      width: 80px; height: 80px; background: var(--mob-accent); color: var(--mob-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; margin-bottom: 16px; box-shadow: 0 8px 24px rgba(0, 229, 196, 0.2);
+    }
+    .avatar-section h2 { margin: 0 0 4px 0; font-size: 22px; font-weight: 800; color: var(--mob-text); letter-spacing: -0.5px; }
+    .avatar-section p { margin: 0; font-size: 14px; color: var(--mob-text-muted); font-weight: 500; }
+
+    /* Settings Cards */
+    .section-title { margin: 0 24px 8px 24px; font-size: 13px; font-weight: 700; color: var(--mob-text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    .settings-card {
+      background: var(--mob-surface); margin: 0 20px 24px 20px; border-radius: 16px; border: 1px solid var(--mob-border); box-shadow: var(--mob-shadow-sm); overflow: hidden;
+    }
+    
+    .settings-row {
+      display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--mob-border); text-decoration: none; transition: background 0.2s;
+    }
+    .settings-row.clickable { cursor: pointer; }
+    .settings-row.clickable:active { background: var(--mob-bg); }
+    .settings-row:last-child { border-bottom: none; }
+    
+    .settings-info { display: flex; flex-direction: column; gap: 4px; }
+    .settings-label { font-size: 13px; color: var(--mob-text-muted); font-weight: 500; }
+    .settings-value { font-size: 15px; font-weight: 600; color: var(--mob-text); }
+    .settings-value.locked { color: var(--mob-text-muted); }
+    
+    .settings-icon { color: var(--mob-text-muted); display: flex; align-items: center; }
+    .settings-icon svg { width: 18px; height: 18px; }
+
+    /* Edit Bottom Sheet Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(5, 16, 36, 0.6); z-index: 300; display: none; opacity: 0; transition: opacity 0.3s; }
+    .modal-sheet {
+      position: fixed; bottom: 0; left: 0; right: 0; background: var(--mob-bg); border-radius: 24px 24px 0 0; z-index: 301;
+      transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom));
+    }
+    .modal-sheet.open { transform: translateY(0); }
+    .modal-overlay.open { display: block; opacity: 1; }
+    
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .modal-header h2 { margin: 0; font-size: 20px; font-weight: 800; color: var(--mob-text); }
+    .modal-close-btn { background: var(--mob-surface); border: 1px solid var(--mob-border); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+    .form-group { margin-bottom: 24px; }
+    .form-group label { display: block; font-size: 14px; font-weight: 600; color: var(--mob-text); margin-bottom: 8px; }
+    .form-control { width: 100%; box-sizing: border-box; background: var(--mob-surface); border: 1px solid var(--mob-border); padding: 14px 16px; border-radius: 12px; font-size: 16px; outline: none; transition: 0.2s; font-family: 'Inter', sans-serif; color: var(--mob-text); }
+    .form-control:focus { border-color: var(--mob-primary); box-shadow: 0 0 0 3px var(--mob-primary-dim); }
+    
+    .btn-save {
+      background: var(--mob-primary); color: white; border: none; padding: 14px 20px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; font-size: 15px; transition: transform 0.2s;
+    }
+    .btn-save:active { transform: scale(0.98); }
+
+    /* Custom Toast Notification */
+    .toast-notif { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #10b981; color: white; padding: 12px 24px; border-radius: 20px; font-size: 14px; font-weight: 700; box-shadow: var(--mob-shadow-md); z-index: 999; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); text-align: center; white-space: nowrap; }
+    .toast-notif.show { transform: translateX(-50%) translateY(0); }
+    
+  </style>
+</head>
+<body>
+
+  <div id="toast" class="toast-notif">Successfully updated</div>
+
+  <header class="profile-header">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <button class="btn-back" onclick="window.history.back()"><i data-lucide="arrow-left" style="width: 18px;"></i></button>
+      <h1 style="margin: 0; font-size: 20px; font-weight: 800; color: var(--mob-text);">Personal Details</h1>
+    </div>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button class="pwa-install-btn" style="display: none; background: var(--mob-accent); color: var(--mob-primary); border: none; padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 13px; align-items: center; gap: 6px; cursor: pointer; box-shadow: var(--mob-shadow-sm);" onclick="installPWA()">
+        App <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+      </button>
+      <button class="mob-avatar-mini" onclick="openProfileMenu()">
+        <%= typeof username !== 'undefined' && username ? username.charAt(0).toUpperCase() : 'U' %>
+      </button>
+    </div>
+  </header>
+
+  <main class="mob-main-content" style="padding-top: 0; padding-bottom: 100px;">
+    
+    <% 
+      // 1. Smart Data Extraction
+      const userName = (typeof profile !== 'undefined' && profile.full_name) ? profile.full_name : ((typeof account !== 'undefined' && account.name) ? account.name : 'User');
+      const userEmail = (typeof profile !== 'undefined' && profile.email) ? profile.email : ((typeof account !== 'undefined' && account.email) ? account.email : 'Not provided');
+      const userPhone = (typeof profile !== 'undefined' && profile.phone) ? profile.phone : ((typeof account !== 'undefined' && account.phone) ? account.phone : 'Not provided');
+      const userDob = (typeof profile !== 'undefined' && profile.dob) ? profile.dob : ((typeof account !== 'undefined' && account.dob) ? account.dob : 'Not provided');
+      const userHandle = typeof username !== 'undefined' ? username : 'username';
+      
+      // Calculate Initials from the parsed name
+      const initials = userName !== 'User' && userName.length > 0
+        ? userName.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase() 
+        : 'U';
+      
+      // 2. Stitch the address fields together
+      let addressHtml = 'Address not provided';
+      if (typeof profile !== 'undefined' && profile.street) {
+        addressHtml = `${profile.street}<br>${profile.city || ''} ${profile.state || ''}<br>${profile.postal_code || ''}<br>${profile.country || ''}`;
+      } else if (typeof account !== 'undefined' && account.address) {
+        addressHtml = account.address;
+      }
+    %>
+
+    <div class="avatar-section">
+      <div class="avatar-circle"><%= initials %></div>
+      <h2><%= userName %></h2>
+      <p>@<%= userHandle %></p>
+    </div>
+
+    <h3 class="section-title">Personal Information</h3>
+    <div class="settings-card">
+      <div class="settings-row">
+        <div class="settings-info">
+          <div class="settings-label">Legal Name</div>
+          <div class="settings-value locked"><%= userName %></div>
+        </div>
+        <div class="settings-icon" onclick="alert('Legal name changes require contacting support with a valid ID.')"><i data-lucide="lock" style="width: 14px;"></i></div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-info">
+          <div class="settings-label">Date of Birth</div>
+          <div class="settings-value locked"><%= userDob %></div>
+        </div>
+        <div class="settings-icon"><i data-lucide="lock" style="width: 14px;"></i></div>
+      </div>
+    </div>
+
+    <h3 class="section-title">Contact Details</h3>
+    <div class="settings-card">
+      <div class="settings-row clickable" onclick="openEditModal('Email Address', 'email', 'email')">
+        <div class="settings-info">
+          <div class="settings-label">Email Address</div>
+          <div class="settings-value" id="display-email"><%= userEmail %></div>
+        </div>
+        <div class="settings-icon"><i data-lucide="chevron-right"></i></div>
+      </div>
+      <div class="settings-row clickable" onclick="openEditModal('Phone Number', 'phone', 'tel')">
+        <div class="settings-info">
+          <div class="settings-label">Phone Number</div>
+          <div class="settings-value" id="display-phone"><%= userPhone %></div>
+        </div>
+        <div class="settings-icon"><i data-lucide="chevron-right"></i></div>
+      </div>
+    </div>
+
+    <h3 class="section-title">Home Address</h3>
+    <div class="settings-card">
+      <div class="settings-row clickable" onclick="alert('Address updates require a new Proof of Address document. Please contact support via the Help tab.')">
+        <div class="settings-info">
+          <div class="settings-label">Residential Address</div>
+          <div class="settings-value" style="line-height: 1.4; margin-top: 4px;">
+            <%- addressHtml %>
+          </div>
+        </div>
+        <div class="settings-icon"><i data-lucide="chevron-right"></i></div>
+      </div>
+    </div>
+
+  </main>
+
+  <nav class="mob-bottom-nav">
+    <a href="/dashboard" class="mob-nav-link">
+      <span class="mob-nav-icon"><i data-lucide="home"></i></span>
+      Home
+    </a>
+    <a href="/account" class="mob-nav-link">
+      <span class="mob-nav-icon"><i data-lucide="credit-card"></i></span>
+      Accounts
+    </a>
+    <a href="/transfers" class="mob-nav-link">
+      <span class="mob-nav-icon"><i data-lucide="arrow-right-left"></i></span>
+      Transactions
+    </a>
+    <a href="/support" class="mob-nav-link">
+      <span class="mob-nav-icon"><i data-lucide="headphones"></i></span>
+      Support
+    </a>
+  </nav>
+
+  <div class="modal-overlay" id="editOverlay" onclick="closeEditModal()"></div>
+  <div class="modal-sheet" id="editSheet">
+    <div class="modal-header">
+      <h2 id="editModalTitle">Edit Field</h2>
+      <button class="modal-close-btn" onclick="closeEditModal()"><i data-lucide="x" style="width: 16px; color: var(--mob-text);"></i></button>
+    </div>
+    
+    <input type="hidden" id="editFieldId">
+
+    <div class="form-group">
+      <label id="editModalLabel">New Value</label>
+      <input type="text" id="editModalInput" class="form-control" placeholder="Enter details">
+    </div>
+    
+    <button class="btn-save" id="btnSaveEdit" onclick="saveEdit()">Save Changes</button>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Dynamic Edit Modal Logic
+    function openEditModal(title, fieldId, inputType) {
+      document.getElementById('editModalTitle').innerText = 'Edit ' + title;
+      document.getElementById('editModalLabel').innerText = title;
+      
+      const inputEl = document.getElementById('editModalInput');
+      inputEl.type = inputType;
+      
+      // Grab current dynamic value directly from the UI element
+      const actualValue = document.getElementById('display-' + fieldId).innerText;
+      
+      // Don't auto-fill if it says "Not provided"
+      inputEl.value = actualValue === 'Not provided' ? '' : actualValue;
+      
+      document.getElementById('editFieldId').value = fieldId;
+
+      document.getElementById('editOverlay').classList.add('open');
+      setTimeout(() => document.getElementById('editSheet').classList.add('open'), 10);
+    }
+
+    function closeEditModal() {
+      document.getElementById('editSheet').classList.remove('open');
+      setTimeout(() => document.getElementById('editOverlay').classList.remove('open'), 300);
+    }
+
+    function saveEdit() {
+      const fieldId = document.getElementById('editFieldId').value;
+      const newValue = document.getElementById('editModalInput').value;
+      const btn = document.getElementById('btnSaveEdit');
+
+      if (!newValue) {
+        alert("Field cannot be empty");
+        return;
+      }
+
+      // Simulate network save
+      btn.innerHTML = '<i data-lucide="loader-2" style="animation: spin 1s linear infinite; width: 18px;"></i>';
+      lucide.createIcons();
+      btn.style.opacity = '0.8';
+      btn.style.pointerEvents = 'none';
+
+      setTimeout(() => {
+        // Update the UI text dynamically
+        document.getElementById('display-' + fieldId).innerText = newValue;
+        
+        closeEditModal();
+        
+        // Reset button
+        setTimeout(() => {
+          btn.innerHTML = 'Save Changes';
+          btn.style.opacity = '1';
+          btn.style.pointerEvents = 'auto';
+          showToast('Updated successfully');
+        }, 300);
+
+      }, 1000);
+    }
+
+    // PWA Install Logic
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const installBtns = document.querySelectorAll('.pwa-install-btn');
+      installBtns.forEach(btn => btn.style.display = 'flex');
+    });
+
+    function installPWA() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') { console.log('User accepted the install prompt'); }
+          deferredPrompt = null;
+        });
+      }
+    }
+  </script>
+
+  <%- include('partials/profile_menu') %>
+</body>
+</html>
