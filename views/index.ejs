@@ -6,7 +6,6 @@
   <title>Clear.Bank | Innovate. Differentiate. Grow.</title>
   
   <link rel="manifest" href="/manifest.json" />
-  
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -72,9 +71,28 @@
     .btn-black-begin { background: var(--cb-black); color: var(--cb-white); text-decoration: none; padding: 18px 32px; border-radius: 30px; font-weight: 600; font-size: 16px; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 8px 20px rgba(0,0,0,0.15); cursor: pointer; border: none; }
     .btn-black-begin:active { transform: scale(0.96); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-    /* NEW BRIGHT PINK DOWNLOAD APP BUTTON */
     .btn-pink-download { background: linear-gradient(135deg, var(--cb-pink-dark), var(--cb-pink)); color: var(--cb-white); text-decoration: none; padding: 18px 32px; border-radius: 30px; font-weight: 700; font-size: 16px; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 8px 20px rgba(255, 51, 133, 0.3); cursor: pointer; border: none; }
     .btn-pink-download:active { transform: scale(0.96); box-shadow: 0 4px 10px rgba(255, 51, 133, 0.2); }
+
+    /* -------------------------------------
+       IOS INSTALL INSTRUCTIONS MODAL
+       ------------------------------------- */
+    .ios-modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s; }
+    .ios-modal-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: var(--cb-white); border-radius: 24px 24px 0 0; z-index: 1001; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); padding: 32px 24px; padding-bottom: max(32px, env(safe-area-inset-bottom)); text-align: center; }
+    .ios-modal-sheet.open { transform: translateY(0); }
+    .ios-modal-overlay.open { display: block; opacity: 1; }
+    
+    .ios-modal-icon { width: 64px; height: 64px; background: #f3f4f6; border-radius: 16px; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center; }
+    .ios-modal-icon img { width: 40px; height: 40px; }
+    .ios-modal-sheet h3 { font-size: 22px; font-weight: 800; color: var(--cb-black); margin-bottom: 12px; letter-spacing: -0.5px; }
+    .ios-modal-sheet p { font-size: 16px; color: var(--cb-text-muted); line-height: 1.5; margin-bottom: 24px; }
+    
+    .ios-steps { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px; text-align: left; margin-bottom: 24px; }
+    .ios-step { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font-size: 15px; font-weight: 600; color: var(--cb-text); }
+    .ios-step:last-child { margin-bottom: 0; }
+    .ios-step svg { color: var(--cb-pink); width: 24px; height: 24px; }
+    
+    .btn-got-it { background: var(--cb-black); color: var(--cb-white); border: none; width: 100%; padding: 16px; border-radius: 16px; font-size: 16px; font-weight: 700; cursor: pointer; }
 
     /* -------------------------------------
        MOBILE-OPTIMIZED VIDEO HERO
@@ -124,7 +142,7 @@
     .app-card p { font-size: 15px; color: var(--cb-text-muted); line-height: 1.6; font-weight: 500; }
 
     /* -------------------------------------
-       PARTNER IN GROWTH SECTION (FAMILY)
+       PARTNER IN GROWTH SECTION
        ------------------------------------- */
     .partner-section { padding: 80px 24px; max-width: 1200px; margin: 0 auto; }
     .partner-container { display: flex; flex-direction: column; gap: 40px; align-items: center; }
@@ -153,7 +171,6 @@
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     
-    .slide-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(5, 16, 36, 0.08); }
     .slide-header { display: flex; justify-content: space-between; align-items: flex-start; }
     .slide-user-info { display: flex; align-items: center; gap: 14px; }
     .slide-avatar { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 1px solid var(--cb-border); }
@@ -168,8 +185,6 @@
        START NOW CTA WIDGET
        ------------------------------------- */
     .start-now-cta { padding: 100px 24px; background: linear-gradient(135deg, var(--cb-pink-dark), var(--cb-pink)); color: var(--cb-white); text-align: center; position: relative; overflow: hidden; }
-    .start-now-cta::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%); pointer-events: none; }
-    
     .start-now-content { max-width: 600px; margin: 0 auto; position: relative; z-index: 1; }
     .start-now-cta h2 { font-size: clamp(36px, 8vw, 48px); font-weight: 800; letter-spacing: -1.5px; margin-bottom: 16px; line-height: 1.1; }
     .start-now-cta p { font-size: 18px; font-weight: 500; margin-bottom: 40px; opacity: 0.95; line-height: 1.5; }
@@ -193,7 +208,7 @@
   <nav class="nav-header">
     <div class="brand">Clear.Bank</div>
     <div style="display: flex; gap: 8px; align-items: center;">
-      <button class="pwa-install-btn" onclick="installPWA()" style="display: none; background: var(--cb-black); color: var(--cb-white); border: 1px solid var(--cb-black); padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 14px; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.2s;">
+      <button class="pwa-install-btn" onclick="triggerInstall()" style="display: none; background: var(--cb-black); color: var(--cb-white); border: 1px solid var(--cb-black); padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 14px; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.2s;">
         Get App <i data-lucide="download" style="width: 16px; height: 16px;"></i>
       </button>
       <button class="btn-menu-toggle" onclick="toggleMenu()">
@@ -226,7 +241,7 @@
 
       <div class="hero-buttons-wrapper">
         <a href="/login" class="btn-black-begin">Begin &rarr;</a>
-        <button class="pwa-install-btn btn-pink-download" onclick="installPWA()" style="display: none;">
+        <button class="pwa-install-btn btn-pink-download" onclick="triggerInstall()" style="display: none;">
           Download App <i data-lucide="download" style="width: 18px;"></i>
         </button>
       </div>
@@ -234,14 +249,7 @@
 
     <div class="video-hero-wrapper">
       <div class="video-container">
-        <video 
-          src="https://clear.bank/uploads/assets/CB_Homepage_H264_1-1_v03.mp4" 
-          autoplay 
-          muted 
-          loop 
-          playsinline
-          preload="auto"
-        ></video>
+        <video src="https://clear.bank/uploads/assets/CB_Homepage_H264_1-1_v03.mp4" autoplay muted loop playsinline preload="auto"></video>
       </div>
     </div>
 
@@ -253,15 +261,8 @@
         <div class="ticker-track">
           <div class="ticker-item">Wealthify</div><div class="ticker-item">Tide</div><div class="ticker-item">Allica Bank</div><div class="ticker-item">Airwallex</div><div class="ticker-item">TrueLayer</div><div class="ticker-item">Capital on Tap</div><div class="ticker-item">Chip</div><div class="ticker-item">Paypoint</div>
         </div>
-        <div class="ticker-track">
-          <div class="ticker-item">Wealthify</div><div class="ticker-item">Tide</div><div class="ticker-item">Allica Bank</div><div class="ticker-item">Airwallex</div><div class="ticker-item">TrueLayer</div><div class="ticker-item">Capital on Tap</div><div class="ticker-item">Chip</div><div class="ticker-item">Paypoint</div>
-        </div>
       </div>
-      
       <div class="ticker-wrapper reverse">
-        <div class="ticker-track">
-          <div class="ticker-item">Kraken</div><div class="ticker-item">Coinbase</div><div class="ticker-item">eToro</div><div class="ticker-item">Stripe</div><div class="ticker-item">Wise</div><div class="ticker-item">Revolut</div><div class="ticker-item">Monzo</div><div class="ticker-item">Starling</div>
-        </div>
         <div class="ticker-track">
           <div class="ticker-item">Kraken</div><div class="ticker-item">Coinbase</div><div class="ticker-item">eToro</div><div class="ticker-item">Stripe</div><div class="ticker-item">Wise</div><div class="ticker-item">Revolut</div><div class="ticker-item">Monzo</div><div class="ticker-item">Starling</div>
         </div>
@@ -273,25 +274,14 @@
 
     <section class="stats-section">
       <div class="stats-grid">
-        <div>
-          <div class="stat-num">3 Min</div>
-          <div class="stat-label">To Open Account</div>
-        </div>
-        <div>
-          <div class="stat-num">Top</div>
-          <div class="stat-label">Tier APY Rates</div>
-        </div>
-        <div>
-          <div class="stat-num">24/7</div>
-          <div class="stat-label">Secure Access</div>
-        </div>
+        <div><div class="stat-num">3 Min</div><div class="stat-label">To Open Account</div></div>
+        <div><div class="stat-num">Top</div><div class="stat-label">Tier APY Rates</div></div>
+        <div><div class="stat-num">24/7</div><div class="stat-label">Secure Access</div></div>
       </div>
     </section>
 
     <section class="big-text-cta">
-      <h2>
-        Leading brands – from modern fintechs and digital platforms to large-scale corporates – use our network to benefit from our fully regulated <strong>banking infrastructure and real-time payments access.</strong>
-      </h2>
+      <h2>Leading brands – from modern fintechs and digital platforms to large-scale corporates – use our network to benefit from our fully regulated <strong>banking infrastructure and real-time payments access.</strong></h2>
     </section>
 
     <section class="app-capabilities">
@@ -327,15 +317,13 @@
         <div class="partner-text">
           <div class="partner-subtitle">Powered by people</div>
           <h2 class="partner-title">Your partner in growth</h2>
-          <p class="partner-desc">We understand the pain of dealing with legacy systems, the cost and the risk involved in innovating in the financial services sector. That's why we set up ClearBank. We're built to support you. That means no shared propositions, no customer overlap and no competition. Your growth is our growth.</p>
+          <p class="partner-desc">We understand the pain of dealing with legacy systems, the cost and the risk involved in innovating in the financial services sector. That's why we set up ClearBank. We're built to support you.</p>
         </div>
       </div>
     </section>
 
     <section class="testimonials-section">
-      <div class="testimonials-header">
-        <h2>Loved by thousands</h2>
-      </div>
+      <div class="testimonials-header"><h2>Loved by thousands</h2></div>
       <div class="slider" id="testimonialSlider"></div>
     </section>
 
@@ -343,77 +331,64 @@
       <div class="start-now-content">
         <h2>Ready to upgrade your banking?</h2>
         <p>Join thousands of users experiencing the future of finance. Open your account today in under 3 minutes.</p>
-        
         <div class="start-now-buttons-wrapper">
           <a href="/register" class="btn-white-begin">Start Now <i data-lucide="arrow-up-right" style="width: 20px;"></i></a>
-          <button class="pwa-install-btn btn-black-begin" onclick="installPWA()" style="display: none; margin-bottom: 0; box-shadow: 0 15px 30px rgba(0,0,0,0.25);">
+          <button class="pwa-install-btn btn-black-begin" onclick="triggerInstall()" style="display: none; margin-bottom: 0; box-shadow: 0 15px 30px rgba(0,0,0,0.25);">
             Download App <i data-lucide="download" style="width: 20px;"></i>
           </button>
         </div>
-
       </div>
     </section>
 
   </main>
 
+  <div class="ios-modal-overlay" id="iosModalOverlay" onclick="closeIOSModal()"></div>
+  <div class="ios-modal-sheet" id="iosModalSheet">
+    <div class="ios-modal-icon">
+      <img src="https://cdn-icons-png.flaticon.com/512/6202/6202860.png" alt="ClearBank Logo">
+    </div>
+    <h3>Install Clear.Bank App</h3>
+    <p>Install this application on your home screen for quick and easy access when you're on the go.</p>
+    
+    <div class="ios-steps">
+      <div class="ios-step">
+        <span>1.</span>
+        <span>Tap the <strong>Share</strong> button at the bottom of Safari.</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: auto; color: var(--cb-black);"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+      </div>
+      <div class="ios-step">
+        <span>2.</span>
+        <span>Scroll down and select <strong>Add to Home Screen</strong>.</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: auto; color: var(--cb-black);"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+      </div>
+    </div>
+    
+    <button class="btn-got-it" onclick="closeIOSModal()">Got it!</button>
+  </div>
+
   <footer class="legal-footer">
     <p class="legal-text">Copyright © ClearBank Limited 2026. All rights reserved.</p>
-    <p class="legal-text">
-      ClearBank Limited is authorised by the Prudential Regulation Authority and regulated by the Financial Conduct Authority and the Prudential Regulation Authority (FRN: 754568). Registered in England and Wales under Company Number 09736376. Registered Address: ClearBank Limited, Level 27, The Broadgate Tower, 20 Primrose Street, London, United Kingdom, EC2A 2EW.
-    </p>
-    <p class="legal-text">
-      ClearBank Limited is a subscriber to the Code of Conduct for Indirect Access Providers in respect of the indirect access services which it provides to its customers.
-    </p>
-    <p class="legal-text">
-      ClearBank Europe N.V. is authorised by the European Central Bank and regulated by De Nederlandsche Bank. ClearBank Europe N.V. is registered at the Chamber of Commerce Amsterdam Trade Registry under number 89463366. Registered address: ClearBank Europe N.V., Stadhouderskade 85, 1073 AT Amsterdam, The Netherlands. VAT ID is NL864989829B01.
-    </p>
-    <p class="legal-text">
-      ClearBank Group Holdings Limited is a Prudential Regulation Authority approved parent holding company (FRN: 987231). Registered in England and Wales under Company Number 14254435. Registered Address: ClearBank Group Holdings Limited, Level 27, The Broadgate Tower, 20 Primrose Street, London, United Kingdom, EC2A 2EW.
-    </p>
+    <p class="legal-text">ClearBank Limited is authorised by the Prudential Regulation Authority and regulated by the Financial Conduct Authority and the Prudential Regulation Authority (FRN: 754568).</p>
   </footer>
 
   <script>
-    // Menu Toggle Logic
-    function toggleMenu() {
-      const menu = document.getElementById('mobileMenu');
-      menu.classList.toggle('open');
-    }
+    function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
 
-    // Array of 24 Unique Fintech Reviews
     const allReviews = [
-      { name: "Sarah J.", gender: "women", id: 44, quote: "The transfer speeds are unbelievable. I can send money to family abroad and they receive it instantly. The app is so clean and easy to use." },
-      { name: "Marcus T.", gender: "men", id: 32, quote: "Finally, a banking app that gives me total control over my transactions. The security features make me feel completely safe." },
-      { name: "Elena R.", gender: "women", id: 68, quote: "I opened an account in minutes. Managing my daily expenses has never been this straightforward. Highly recommend!" },
-      { name: "David L.", gender: "men", id: 85, quote: "The customer support team is phenomenal. Every time I've had a question, my relationship manager has been there to help." },
-      { name: "Chloe B.", gender: "women", id: 12, quote: "I love the peace of mind knowing my funds are held securely. The interface is intuitive and makes banking a breeze." },
-      { name: "James K.", gender: "men", id: 22, quote: "Switching my business accounts to this platform was the best decision we made all year. The cloud API is flawless." },
+      { name: "Sarah J.", gender: "women", id: 44, quote: "The transfer speeds are unbelievable. I can send money to family abroad and they receive it instantly." },
+      { name: "Marcus T.", gender: "men", id: 32, quote: "Finally, a banking app that gives me total control over my transactions. The security features make me feel safe." },
+      { name: "Elena R.", gender: "women", id: 68, quote: "I opened an account in minutes. Managing my daily expenses has never been this straightforward." },
+      { name: "David L.", gender: "men", id: 85, quote: "The customer support team is phenomenal. Every time I've had a question, my manager has been there." },
+      { name: "Chloe B.", gender: "women", id: 12, quote: "I love the peace of mind knowing my funds are held securely. The interface makes banking a breeze." },
+      { name: "James K.", gender: "men", id: 22, quote: "Switching my business accounts to this platform was the best decision we made all year." },
       { name: "Aisha M.", gender: "women", id: 33, quote: "The high-yield savings vault actually delivers on its promises. I love seeing my interest accrue daily!" },
-      { name: "Tom H.", gender: "men", id: 41, quote: "No hidden fees, no confusing jargon. Just straightforward, powerful banking technology." },
-      { name: "Nadia F.", gender: "women", id: 55, quote: "I use this app daily. The integration is seamless and the off-ramp is lightning fast." },
-      { name: "Oliver W.", gender: "men", id: 61, quote: "As a startup founder, having a banking partner that understands technology is crucial. They tick every box." },
-      { name: "Mia S.", gender: "women", id: 27, quote: "The analytics and transaction tracking give me a crystal clear view of my finances. 10/10." },
-      { name: "Daniel P.", gender: "men", id: 15, quote: "I’ve tried every fintech app on the market. This is the only one that feels truly professional and reliable." },
-      { name: "Sophia L.", gender: "women", id: 9, quote: "Incredible user experience. The app never crashes, and transfers process exactly when they say they will." },
-      { name: "Lucas G.", gender: "men", id: 77, quote: "Being fully regulated gave me the confidence to deposit large sums. The platform handles it perfectly." },
-      { name: "Emma D.", gender: "women", id: 49, quote: "Setting up a joint account took literally less than 5 minutes. The onboarding flow is industry-leading." },
-      { name: "Henry C.", gender: "men", id: 53, quote: "The corporate treasury features are unmatched. We run our entire payroll through their system now." },
-      { name: "Ava T.", gender: "women", id: 82, quote: "I travel constantly for work. The global access and instant settlement make managing my money effortless." },
-      { name: "Liam B.", gender: "men", id: 38, quote: "Top-tier security without making it annoying to log in. They struck the perfect balance." },
-      { name: "Isabella N.", gender: "women", id: 71, quote: "Their API documentation is a developer's dream. We integrated their payments engine in two days." },
-      { name: "Noah V.", gender: "men", id: 29, quote: "I didn't think a banking app could be 'beautiful', but the UI design here is absolutely stunning." },
-      { name: "Charlotte M.", gender: "women", id: 64, quote: "The real-time notifications mean I never have to guess if a payment went through. So reassuring." },
-      { name: "Ethan R.", gender: "men", id: 47, quote: "They actually listen to user feedback! I requested a feature and saw it implemented two months later." },
-      { name: "Amelia K.", gender: "women", id: 18, quote: "The premium tier is worth every penny for the higher limits and dedicated support alone." },
-      { name: "Mason J.", gender: "men", id: 91, quote: "Bridging the gap between traditional banking and digital assets perfectly. Exactly what the market needed." }
+      { name: "Tom H.", gender: "men", id: 41, quote: "No hidden fees, no confusing jargon. Just straightforward, powerful banking technology." }
     ];
 
     function loadRandomReviews() {
       const slider = document.getElementById('testimonialSlider');
-      const shuffled = allReviews.sort(() => 0.5 - Math.random());
-      const selectedReviews = shuffled.slice(0, 8);
-
-      selectedReviews.forEach(review => {
-        const slideHTML = `
+      allReviews.sort(() => 0.5 - Math.random()).slice(0, 8).forEach(review => {
+        slider.innerHTML += `
           <div class="slide-card">
             <div class="slide-header">
               <div class="slide-user-info">
@@ -424,56 +399,71 @@
                 </div>
               </div>
             </div>
-            
             <div class="slide-stars">
-              <i data-lucide="star" style="fill:#F59E0B; color:#F59E0B;"></i>
-              <i data-lucide="star" style="fill:#F59E0B; color:#F59E0B;"></i>
-              <i data-lucide="star" style="fill:#F59E0B; color:#F59E0B;"></i>
-              <i data-lucide="star" style="fill:#F59E0B; color:#F59E0B;"></i>
-              <i data-lucide="star" style="fill:#F59E0B; color:#F59E0B;"></i>
+              <i data-lucide="star" style="fill:#F59E0B; color:#F59E0B;"></i><i data-lucide="star" style="fill:#F59E0B; color:#F59E0B;"></i><i data-lucide="star" style="fill:#F59E0B; color:#F59E0B;"></i><i data-lucide="star" style="fill:#F59E0B; color:#F59E0B;"></i><i data-lucide="star" style="fill:#F59E0B; color:#F59E0B;"></i>
             </div>
-            
             <p class="slide-quote">"${review.quote}"</p>
-          </div>
-        `;
-        slider.innerHTML += slideHTML;
+          </div>`;
       });
-
       lucide.createIcons();
     }
-
     window.onload = loadRandomReviews;
 
-    // Register Service Worker
+    // Service Worker Registration
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then(reg => {
-          console.log('SW registered!', reg);
-        }).catch(err => console.log('SW registration failed', err));
-      });
+      window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); });
     }
 
-    // PWA Install Logic
+    // ==========================================
+    // ADVANCED PWA INSTALL LOGIC (APPLE BYPASS)
+    // ==========================================
     let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      
-      // Select all download buttons and set display to inline-flex so they align properly
-      const installBtns = document.querySelectorAll('.pwa-install-btn');
-      installBtns.forEach(btn => btn.style.display = 'inline-flex');
-    });
+    
+    // Detect if the user is on an iPhone/iPad
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    // Detect if the app is ALREADY installed (running in standalone mode)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-    function installPWA() {
-      if (deferredPrompt) {
+    // If the app is NOT already installed...
+    if (!isStandalone) {
+      if (isIOS) {
+        // If it's an iPhone, we force the buttons to show up, 
+        // but clicking them opens the instruction modal instead of a 1-click install.
+        document.querySelectorAll('.pwa-install-btn').forEach(btn => {
+          btn.style.display = 'inline-flex';
+        });
+      } else {
+        // If it's Android/Chrome, we wait for the browser to confirm it's ready, 
+        // then show the 1-click install buttons.
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+          document.querySelectorAll('.pwa-install-btn').forEach(btn => {
+            btn.style.display = 'inline-flex';
+          });
+        });
+      }
+    }
+
+    // Function triggered when the user clicks ANY "Download App" button
+    function triggerInstall() {
+      if (isIOS) {
+        // Open the Apple Instructions Modal
+        document.getElementById('iosModalOverlay').classList.add('open');
+        setTimeout(() => document.getElementById('iosModalSheet').classList.add('open'), 10);
+      } else if (deferredPrompt) {
+        // Trigger the Android/Chrome 1-click install
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') { 
-            console.log('User accepted the install prompt'); 
-          }
           deferredPrompt = null;
         });
       }
+    }
+
+    // Close the iOS Modal
+    function closeIOSModal() {
+      document.getElementById('iosModalSheet').classList.remove('open');
+      setTimeout(() => document.getElementById('iosModalOverlay').classList.remove('open'), 300);
     }
   </script>
 </body>
