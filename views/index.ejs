@@ -72,8 +72,9 @@
     .btn-black-begin { background: var(--cb-black); color: var(--cb-white); text-decoration: none; padding: 18px 32px; border-radius: 30px; font-weight: 600; font-size: 16px; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 8px 20px rgba(0,0,0,0.15); cursor: pointer; border: none; }
     .btn-black-begin:active { transform: scale(0.96); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-    .btn-secondary-begin { background: transparent; color: var(--cb-black); border: 2px solid var(--cb-black); text-decoration: none; padding: 16px 32px; border-radius: 30px; font-weight: 700; font-size: 16px; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.2s, background 0.2s; cursor: pointer; }
-    .btn-secondary-begin:active { transform: scale(0.96); background: rgba(0,0,0,0.05); }
+    /* NEW BRIGHT PINK DOWNLOAD APP BUTTON */
+    .btn-pink-download { background: linear-gradient(135deg, var(--cb-pink-dark), var(--cb-pink)); color: var(--cb-white); text-decoration: none; padding: 18px 32px; border-radius: 30px; font-weight: 700; font-size: 16px; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 8px 20px rgba(255, 51, 133, 0.3); cursor: pointer; border: none; }
+    .btn-pink-download:active { transform: scale(0.96); box-shadow: 0 4px 10px rgba(255, 51, 133, 0.2); }
 
     /* -------------------------------------
        MOBILE-OPTIMIZED VIDEO HERO
@@ -225,7 +226,7 @@
 
       <div class="hero-buttons-wrapper">
         <a href="/login" class="btn-black-begin">Begin &rarr;</a>
-        <button class="pwa-install-btn btn-secondary-begin" onclick="installPWA()" style="display: none;">
+        <button class="pwa-install-btn btn-pink-download" onclick="installPWA()" style="display: none;">
           Download App <i data-lucide="download" style="width: 18px;"></i>
         </button>
       </div>
@@ -443,7 +444,7 @@
 
     window.onload = loadRandomReviews;
 
-    // NEW: Register Service Worker
+    // Register Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').then(reg => {
