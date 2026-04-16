@@ -66,7 +66,9 @@ async function requireAdmin(req, res, next) {
 // ==========================================
 // PUBLIC & AUTH ROUTES
 // ==========================================
-app.get('/', (req, res) => res.redirect('/login'));
+// THIS IS THE FIX: Render the landing page instead of redirecting to login!
+app.get('/', (req, res) => res.render('index'));
+
 app.get('/login', (req, res) => res.render('login', { error: null }));
 
 app.post('/login', async (req, res) => {
