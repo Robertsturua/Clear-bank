@@ -66,7 +66,6 @@ async function requireAdmin(req, res, next) {
 // ==========================================
 // PUBLIC & AUTH ROUTES
 // ==========================================
-// THIS IS THE FIX: Render the landing page instead of redirecting to login!
 app.get('/', (req, res) => res.render('index'));
 
 app.get('/login', (req, res) => res.render('login', { error: null }));
@@ -367,6 +366,21 @@ app.post('/admin/tx/:id/decline', requireAdmin, async (req, res) => {
         }
         await db.run('UPDATE transactions SET status = ? WHERE id = ?', ['DECLINED', req.params.id]);
     }
+    res.redirect(req.get('referer') || '/admin/users');
+});
+
+app.post('/admin/tx/:id/edit', requireAdmin, async (req, res) => {
+    const { name, amount, status, date } = req.body;
+    
+    // Convert the formatted string amount (e.g. "500 EUR") back to a raw number (500) for the database
+    const rawAmountStr = amount.replace(/[^\d.-]/g, '');
+    const rawAmount = parseFloat(rawAmountStr) || 0;
+
+    await db.run(
+        'UPDATE transactions SET name = ?, amount = ?, raw_amount = ?, status = ?, date = ? WHERE id = ?', 
+        [name, amount, rawAmount, status, date, req.params.id]
+    );
+    
     res.redirect(req.get('referer') || '/admin/users');
 });
 

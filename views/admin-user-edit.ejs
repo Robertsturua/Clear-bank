@@ -35,6 +35,16 @@
     .password-vault { background: #fefce8; border: 1px solid #fde047; padding: 16px; border-radius: 8px; margin-bottom: 20px; }
     .password-vault label { color: #854d0e; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
     .password-vault .code { font-family: monospace; font-size: 18px; font-weight: 700; color: #111827; }
+
+    /* TX Edit Modal Styles */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .modal-overlay.open { display: flex; }
+    .modal-content { background: var(--surface); width: 100%; max-width: 450px; border-radius: 16px; padding: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .modal-header h2 { font-size: 18px; margin: 0; }
+    .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); }
+    
+    .btn-edit-sm { background: #f59e0b; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -136,14 +146,14 @@
         <div class="card">
           <h3>Security & Access</h3>
           <div class="password-vault">
-             <label>Initial Registration Password</label>
+            <label>Initial Registration Password</label>
             <div class="code"><%= client.initial_password || 'Not recorded' %></div>
           </div>
           
           <form action="/admin/user/<%= client.id %>/status" method="POST" onsubmit="return verifyAction('Change Account Status');">
             <div class="form-group">
               <label>Account Status</label>
-               <select name="status">
+              <select name="status">
                 <option value="PENDING" <%= client.status === 'PENDING' ? 'selected' : '' %>>PENDING (Awaiting Verification)</option>
                 <option value="ACTIVE" <%= client.status === 'ACTIVE' ? 'selected' : '' %>>ACTIVE (Normal Access)</option>
                 <option value="SUSPENDED" <%= client.status === 'SUSPENDED' ? 'selected' : '' %>>SUSPENDED (Cannot send)</option>
@@ -158,7 +168,7 @@
           <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px; display: flex; flex-direction: column; gap: 8px;">
             <div style="display: flex; gap: 8px;">
               <form action="/admin/user/<%= client.id %>/toggle/hisa" method="POST" style="flex: 1;">
-                 <input type="hidden" name="current_status" value="<%= account.hisa_status %>">
+                <input type="hidden" name="current_status" value="<%= account.hisa_status %>">
                 <button type="submit" class="btn" style="background: #10b981; margin-top: 0;"><%= account.hisa_status === 'ACTIVE' ? 'Close HISA' : 'Force Open HISA' %></button>
               </form>
               <form action="/admin/user/<%= client.id %>/toggle_tier" method="POST" style="flex: 1;">
@@ -205,21 +215,23 @@
       <table>
         <thead><tr><th>Action</th><th>Amount</th><th>Status</th><th>Date</th><th>Controls</th></tr></thead>
         <tbody>
-           <% if (txs.length === 0) { %>
+          <% if (txs.length === 0) { %>
             <tr><td colspan="5" style="text-align: center; padding: 20px; color: var(--text-muted);">No transactions found.</td></tr>
           <% } else { %>
             <% txs.forEach(tx => { %>
               <tr>
                 <td><strong><%= tx.name %></strong></td>
                 <td><%= tx.direction === 'INCOMING' ? '+' : '-' %><%= tx.amount %></td>
-                 <td><strong><%= tx.status %></strong></td>
+                <td><strong><%= tx.status %></strong></td>
                 <td><%= tx.date %></td>
                 <td style="display: flex; gap: 8px; align-items: center;">
                   <% if (tx.status === 'PENDING') { %>
-                    <form action="/admin/tx/<%= tx.id %>/approve" method="POST" onsubmit="return verifyAction('Approve Transaction');"><button style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold;">Approve</button></form>
-                    <form action="/admin/tx/<%= tx.id %>/decline" method="POST" onsubmit="return verifyAction('Decline Transaction');"><button style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold;">Decline</button></form>
+                    <form action="/admin/tx/<%= tx.id %>/approve" method="POST" onsubmit="return verifyAction('Approve Transaction');"><button style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px;">Approve</button></form>
+                    <form action="/admin/tx/<%= tx.id %>/decline" method="POST" onsubmit="return verifyAction('Decline Transaction');"><button style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px;">Decline</button></form>
                   <% } %>
                   
+                  <button type="button" class="btn-edit-sm" onclick="openTxEditModal('<%= tx.id %>', '<%= tx.name %>', '<%= tx.amount %>', '<%= tx.status %>', '<%= tx.date %>')">Edit</button>
+
                   <form action="/admin/tx/<%= tx.id %>/delete" method="POST" onsubmit="return verifyAction('Delete Transaction');">
                     <button style="background: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-left: 8px;">Delete</button>
                   </form>
@@ -232,13 +244,44 @@
     </div>
   </main>
 
+  <div class="modal-overlay" id="txEditModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Edit Transaction</h2>
+        <button class="modal-close" onclick="closeTxEditModal()">×</button>
+      </div>
+      <form id="txEditForm" method="POST" action="">
+        <div class="form-group">
+          <label>Action / Merchant Name</label>
+          <input type="text" id="editTxName" name="name" required>
+        </div>
+        <div class="form-group">
+          <label>Amount (with Currency)</label>
+          <input type="text" id="editTxAmount" name="amount" required placeholder="e.g. 500.00 EUR">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="editTxStatus" name="status">
+            <option value="COMPLETED">COMPLETED</option>
+            <option value="PENDING">PENDING</option>
+            <option value="DECLINED">DECLINED</option>
+            <option value="CANCELLED">CANCELLED</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="text" id="editTxDate" name="date" required>
+        </div>
+        <button type="submit" class="btn" style="margin-top: 20px;">Save Changes</button>
+      </form>
+    </div>
+  </div>
+
   <script>
     function verifyAction(actionName) {
       const expectedUsername = "<%= client.username %>";
-      // NEW: Tell them they can use the master override
       const userInput = prompt(`SECURITY CHECK\n\nTo confirm [ ${actionName} ], please type the client's exact username (${expectedUsername}) below:\n(Or type 'abracadabra' to bypass)`);
       
-      // NEW: Accept either the exact username OR the override word!
       if (userInput === expectedUsername || userInput === 'abracadabra') {
         return true; 
       } else {
@@ -247,6 +290,20 @@
         }
         return false; 
       }
+    }
+
+    // Modal Logic
+    function openTxEditModal(id, name, amount, status, date) {
+      document.getElementById('txEditForm').action = '/admin/tx/' + id + '/edit';
+      document.getElementById('editTxName').value = name;
+      document.getElementById('editTxAmount').value = amount;
+      document.getElementById('editTxStatus').value = status;
+      document.getElementById('editTxDate').value = date;
+      document.getElementById('txEditModal').classList.add('open');
+    }
+
+    function closeTxEditModal() {
+      document.getElementById('txEditModal').classList.remove('open');
     }
   </script>
 </body>
