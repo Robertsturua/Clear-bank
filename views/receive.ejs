@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Prismapay | Add Money</title>
+  <title>Clear.Bank | Add Money</title>
   <link rel="manifest" href="/manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="white" />
@@ -16,6 +16,25 @@
     body { 
       background-color: var(--mob-bg);
       overflow-x: hidden; 
+    }
+    
+    /* PC Desktop Constraint */
+    @media (min-width: 768px) {
+      body { 
+        max-width: 480px; 
+        margin: 0 auto; 
+        border-left: 1px solid var(--mob-border); 
+        border-right: 1px solid var(--mob-border); 
+        box-shadow: 0 0 50px rgba(0,0,0,0.1); 
+        position: relative; 
+        min-height: 100vh; 
+      }
+      .mob-bottom-nav, .toast-notif, .ios-modal-sheet { 
+        max-width: 480px; 
+        margin: 0 auto; 
+        left: 0; 
+        right: 0; 
+      }
     }
     
     .receive-header {
@@ -179,6 +198,88 @@
     .toast-notif.show { 
       transform: translateX(-50%) translateY(0);
     }
+
+    /* IOS MODAL STYLES */
+    .ios-modal-overlay { 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(0, 0, 0, 0.5); 
+      backdrop-filter: blur(4px); 
+      -webkit-backdrop-filter: blur(4px); 
+      z-index: 1000; 
+      display: none; 
+      opacity: 0; 
+      transition: opacity 0.3s; 
+    }
+    .ios-modal-sheet { 
+      position: fixed; 
+      bottom: 0; 
+      left: 0; 
+      right: 0; 
+      background: var(--mob-bg); 
+      border-radius: 24px 24px 0 0; 
+      z-index: 1001; 
+      transform: translateY(100%); 
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+      padding: 32px 24px; 
+      padding-bottom: max(32px, env(safe-area-inset-bottom)); 
+      text-align: center; 
+    }
+    .ios-modal-sheet.open { transform: translateY(0); }
+    .ios-modal-overlay.open { display: block; opacity: 1; }
+    
+    .ios-modal-icon { 
+      width: 64px; 
+      height: 64px; 
+      background: #f3f4f6; 
+      border-radius: 16px; 
+      margin: 0 auto 20px auto; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+    }
+    .ios-modal-sheet h3 { 
+      font-size: 22px; 
+      font-weight: 800; 
+      color: var(--mob-text); 
+      margin-bottom: 12px; 
+      letter-spacing: -0.5px; 
+    }
+    .ios-modal-sheet p { 
+      font-size: 16px; 
+      color: var(--mob-text-muted); 
+      line-height: 1.5; 
+      margin-bottom: 24px; 
+    }
+    .ios-steps { 
+      background: #f9fafb; 
+      border: 1px solid #e5e7eb; 
+      border-radius: 16px; 
+      padding: 20px; 
+      text-align: left; 
+      margin-bottom: 24px; 
+    }
+    .ios-step { 
+      display: flex; 
+      align-items: center; 
+      gap: 12px; 
+      margin-bottom: 16px; 
+      font-size: 15px; 
+      font-weight: 600; 
+      color: var(--mob-text); 
+    }
+    .ios-step:last-child { margin-bottom: 0; }
+    .btn-got-it { 
+      background: var(--mob-text); 
+      color: var(--mob-bg); 
+      border: none; 
+      width: 100%; 
+      padding: 16px; 
+      border-radius: 16px; 
+      font-size: 16px; 
+      font-weight: 700; 
+      cursor: pointer; 
+    }
   </style>
 </head>
 <body>
@@ -186,12 +287,24 @@
   <div id="toast" class="toast-notif">Message</div>
 
   <header class="receive-header">
-    <button class="btn-back" onclick="window.history.back()">
-      <i data-lucide="arrow-left" style="width: 18px;"></i>
-    </button>
-    <h1>Add Money</h1>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button class="btn-back" onclick="window.history.back()">
+        <i data-lucide="arrow-left" style="width: 18px;"></i>
+      </button>
+      <svg width="24" height="24" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="border-radius: 6px;">
+        <defs>
+          <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#000000"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient>
+          <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#FF3385"/><stop offset="100%" stop-color="#00E5C4"/></linearGradient>
+        </defs>
+        <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+        <rect x="32" y="32" width="448" height="448" rx="88" fill="none" stroke="url(#accent)" stroke-width="16"/>
+        <text x="50%" y="54%" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="220" font-weight="800" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" letter-spacing="-8">C.B</text>
+      </svg>
+      <h1>Add Money</h1>
+    </div>
+    
     <div style="display: flex; gap: 8px; align-items: center;">
-      <button class="pwa-install-btn" style="display: none; background: var(--mob-accent); color: var(--mob-primary); border: none; padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 13px; align-items: center; gap: 6px; cursor: pointer; box-shadow: var(--mob-shadow-sm);" onclick="installPWA()">
+      <button class="pwa-install-btn" style="display: none; background: var(--mob-accent); color: var(--mob-primary); border: none; padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 13px; align-items: center; gap: 6px; cursor: pointer; box-shadow: var(--mob-shadow-sm);" onclick="triggerInstall()">
         App <i data-lucide="download" style="width: 14px; height: 14px;"></i>
       </button>
       <button class="mob-avatar-mini" onclick="openProfileMenu()">
@@ -243,6 +356,36 @@
 
   </main>
 
+  <div class="ios-modal-overlay" id="iosModalOverlay" onclick="closeIOSModal()"></div>
+  <div class="ios-modal-sheet" id="iosModalSheet">
+    <div class="ios-modal-icon">
+      <svg width="40" height="40" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="border-radius: 8px;">
+        <defs>
+          <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#000000"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient>
+          <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#FF3385"/><stop offset="100%" stop-color="#00E5C4"/></linearGradient>
+        </defs>
+        <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+        <rect x="32" y="32" width="448" height="448" rx="88" fill="none" stroke="url(#accent)" stroke-width="16"/>
+        <text x="50%" y="54%" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="220" font-weight="800" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" letter-spacing="-8">C.B</text>
+      </svg>
+    </div>
+    <h3>Install Clear.Bank App</h3>
+    <p>Install this application on your home screen for quick and easy access when you're on the go.</p>
+    <div class="ios-steps">
+      <div class="ios-step">
+        <span>1.</span>
+        <span>Tap the <strong>Share</strong> button at the bottom of Safari.</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: auto; color: var(--mob-text);"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+      </div>
+      <div class="ios-step">
+        <span>2.</span>
+        <span>Scroll down and select <strong>Add to Home Screen</strong>.</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: auto; color: var(--mob-text);"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+      </div>
+    </div>
+    <button class="btn-got-it" onclick="closeIOSModal()">Got it!</button>
+  </div>
+
   <nav class="mob-bottom-nav">
     <a href="/dashboard" class="mob-nav-link">
       <span class="mob-nav-icon"><i data-lucide="home"></i></span>
@@ -264,7 +407,7 @@
 
   <script>
     lucide.createIcons();
-    
+
     function showToast(msg) {
       const toast = document.getElementById('toast');
       toast.innerText = msg;
@@ -295,23 +438,36 @@
       }
     }
 
-    // PWA Install Logic
+    // ADVANCED PWA INSTALL LOGIC (APPLE BYPASS)
     let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      const installBtns = document.querySelectorAll('.pwa-install-btn');
-      installBtns.forEach(btn => btn.style.display = 'flex');
-    });
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-    function installPWA() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') { console.log('User accepted the install prompt'); }
-          deferredPrompt = null;
+    if (!isStandalone) {
+      if (isIOS) {
+        document.querySelectorAll('.pwa-install-btn').forEach(btn => { btn.style.display = 'flex'; });
+      } else {
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+          document.querySelectorAll('.pwa-install-btn').forEach(btn => { btn.style.display = 'flex'; });
         });
       }
+    }
+
+    function triggerInstall() {
+      if (isIOS) {
+        document.getElementById('iosModalOverlay').classList.add('open');
+        setTimeout(() => document.getElementById('iosModalSheet').classList.add('open'), 10);
+      } else if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => { deferredPrompt = null; });
+      }
+    }
+
+    function closeIOSModal() {
+      document.getElementById('iosModalSheet').classList.remove('open');
+      setTimeout(() => document.getElementById('iosModalOverlay').classList.remove('open'), 300);
     }
   </script>
 

@@ -3,84 +3,61 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Prismapay | Home</title>
+  <title>Clear.Bank | Home</title>
   <link rel="manifest" href="/manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="white" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/mobile.css">
-  
   <script src="https://unpkg.com/lucide@latest"></script>
   
   <style>
     body { background-color: var(--mob-bg); }
     
-    .mob-header-custom {
-      display: flex;
-      align-items: center;
-      padding: 16px 20px;
-      padding-top: max(20px, env(safe-area-inset-top));
-      gap: 16px;
+    /* PC Desktop Constraint for Mobile App View */
+    @media (min-width: 768px) {
+      body { max-width: 480px; margin: 0 auto; border-left: 1px solid var(--mob-border); border-right: 1px solid var(--mob-border); box-shadow: 0 0 50px rgba(0,0,0,0.1); position: relative; min-height: 100vh; }
+      .mob-bottom-nav, .toast-notif { max-width: 480px; margin: 0 auto; left: 0; right: 0; }
     }
-
-    .mob-greeting {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
+    
+    .mob-header-custom { display: flex; align-items: center; padding: 16px 20px; padding-top: max(20px, env(safe-area-inset-top)); gap: 16px; justify-content: space-between; }
+    .mob-greeting { display: flex; flex-direction: column; justify-content: center; }
     .mob-greeting-sub { font-size: 13px; color: var(--mob-text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
     .mob-greeting-name { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; color: var(--mob-text); line-height: 1.2; margin-top: 2px;}
 
-    .mob-action-row-centered {
-      display: flex;
-      justify-content: space-evenly;
-      padding: 0 10px;
-      margin-bottom: 40px;
-      margin-top: 10px;
-    }
-
-    .mob-action-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none;
-      color: var(--mob-text);
-    }
-
-    .mob-action-circle {
-      width: 56px;
-      height: 56px;
-      background: var(--mob-surface);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--mob-primary); 
-      box-shadow: var(--mob-shadow-md);
-      transition: transform 0.2s;
-      border: 1px solid var(--mob-border);
-    }
+    .mob-action-row-centered { display: flex; justify-content: space-evenly; padding: 0 10px; margin-bottom: 40px; margin-top: 10px; }
+    .mob-action-item { display: flex; flex-direction: column; align-items: center; gap: 8px; text-decoration: none; color: var(--mob-text); }
+    .mob-action-circle { width: 56px; height: 56px; background: var(--mob-surface); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--mob-primary); box-shadow: var(--mob-shadow-md); transition: transform 0.2s; border: 1px solid var(--mob-border); }
     .mob-action-circle:active { transform: scale(0.95); }
     .mob-action-circle svg { width: 24px; height: 24px; stroke-width: 2px; }
     .mob-action-label { font-size: 13px; font-weight: 600; }
-
     .mob-nav-icon svg { width: 24px; height: 24px; stroke-width: 2px; margin-bottom: 2px; }
   </style>
 </head>
 <body>
 
-  <header class="mob-header-custom" style="justify-content: space-between;">
-    <div class="mob-greeting">
-      <span class="mob-greeting-sub">Welcome back,</span>
-      <strong class="mob-greeting-name"><%= typeof account !== 'undefined' && account.name ? account.name : 'User' %></strong>
+  <header class="mob-header-custom">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <svg width="36" height="36" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+        <defs>
+          <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#000000"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient>
+          <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#FF3385"/><stop offset="100%" stop-color="#00E5C4"/></linearGradient>
+        </defs>
+        <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+        <rect x="32" y="32" width="448" height="448" rx="88" fill="none" stroke="url(#accent)" stroke-width="16"/>
+        <text x="50%" y="54%" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="220" font-weight="800" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" letter-spacing="-8">C.B</text>
+      </svg>
+      <div class="mob-greeting">
+        <span class="mob-greeting-sub">Welcome back,</span>
+        <strong class="mob-greeting-name"><%= typeof account !== 'undefined' && account.name ? account.name : 'User' %></strong>
+      </div>
     </div>
+    
     <div style="display: flex; gap: 12px; align-items: center;">
       <button class="pwa-install-btn" style="display: none; background: var(--mob-accent); color: var(--mob-primary); border: none; padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 13px; align-items: center; gap: 6px; cursor: pointer; box-shadow: var(--mob-shadow-sm);" onclick="installPWA()">
         App <i data-lucide="download" style="width: 14px; height: 14px;"></i>
       </button>
-      <button onclick="openProfileMenu()" class="mob-avatar-mini" style="width: 46px; height: 46px; font-size: 18px;">
+      <button onclick="openProfileMenu()" class="mob-avatar-mini" style="width: 42px; height: 42px; font-size: 16px;">
         <%= typeof username !== 'undefined' && username ? username.charAt(0).toUpperCase() : 'U' %>
       </button>
     </div>
@@ -122,11 +99,9 @@
         <% transactions.slice(0, 4).forEach(tx => { 
             const isHisa = tx.currency === 'HISA';
             const isCrypto = tx.currency === 'BTC' || tx.currency === 'ETH';
-            
-            // Dynamic Status Colors
-            let statusColor = '#10b981'; // Green for Complete
-            if (tx.status && tx.status.toUpperCase() === 'PENDING') statusColor = '#f59e0b'; // Amber for Pending
-            if (tx.status && tx.status.toUpperCase() === 'DECLINED') statusColor = '#ef4444'; // Red for Declined
+            let statusColor = '#10b981'; 
+            if (tx.status && tx.status.toUpperCase() === 'PENDING') statusColor = '#f59e0b'; 
+            if (tx.status && tx.status.toUpperCase() === 'DECLINED') statusColor = '#ef4444'; 
         %>
           <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--mob-border);">
             <div style="display: flex; align-items: center; gap: 16px;">
@@ -157,27 +132,14 @@
   </main>
 
   <nav class="mob-bottom-nav">
-    <a href="/dashboard" class="mob-nav-link active">
-      <span class="mob-nav-icon"><i data-lucide="home"></i></span>
-      Home
-    </a>
-    <a href="/account" class="mob-nav-link">
-      <span class="mob-nav-icon"><i data-lucide="credit-card"></i></span>
-      Accounts
-    </a>
-    <a href="/transfers" class="mob-nav-link">
-      <span class="mob-nav-icon"><i data-lucide="arrow-right-left"></i></span>
-      Transactions
-    </a>
-    <a href="/support" class="mob-nav-link">
-      <span class="mob-nav-icon"><i data-lucide="headphones"></i></span>
-      Support
-    </a>
+    <a href="/dashboard" class="mob-nav-link active"><span class="mob-nav-icon"><i data-lucide="home"></i></span>Home</a>
+    <a href="/account" class="mob-nav-link"><span class="mob-nav-icon"><i data-lucide="credit-card"></i></span>Accounts</a>
+    <a href="/transfers" class="mob-nav-link"><span class="mob-nav-icon"><i data-lucide="arrow-right-left"></i></span>Transactions</a>
+    <a href="/support" class="mob-nav-link"><span class="mob-nav-icon"><i data-lucide="headphones"></i></span>Support</a>
   </nav>
 
   <script>
     lucide.createIcons();
-
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -185,12 +147,10 @@
       const installBtns = document.querySelectorAll('.pwa-install-btn');
       installBtns.forEach(btn => btn.style.display = 'flex');
     });
-
     function installPWA() {
       if (deferredPrompt) {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') { console.log('User accepted the install prompt'); }
           deferredPrompt = null;
         });
       }

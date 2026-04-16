@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
@@ -38,7 +37,6 @@ async function initDB() {
         CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, sender TEXT, content TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP);
     `);
 
-    try { await db.exec("ALTER TABLE profiles ADD COLUMN dob TEXT DEFAULT ''"); } catch (e) {}
     try { await db.exec("ALTER TABLE accounts ADD COLUMN hisa_tier TEXT DEFAULT 'Standard'"); } catch (e) {}
     try { await db.exec("ALTER TABLE accounts ADD COLUMN account_tier TEXT DEFAULT 'Basic'"); } catch (e) {}
     try { await db.exec("ALTER TABLE accounts ADD COLUMN tier_status TEXT DEFAULT 'ACTIVE'"); } catch (e) {}
@@ -68,17 +66,16 @@ async function requireAdmin(req, res, next) {
 // ==========================================
 // PUBLIC & AUTH ROUTES
 // ==========================================
-app.get('/', (req, res) => {
-    if (req.session.userId) return res.redirect('/dashboard');
-    res.render('index');
-});
-
+app.get('/', (req, res) => res.redirect('/login'));
 app.get('/login', (req, res) => res.render('login', { error: null }));
 
 app.post('/login', async (req, res) => {
-    const { username, password } = req.body;
-    const user = await db.get('SELECT * FROM users WHERE username = ?', [username.toLowerCase()]);
-    if (user && await bcrypt.compare(password, user.password)) {
+    // SECURITY: Remove spaces and force lowercase for username. Remove spaces from password.
+    const cleanUsername = req.body.username.replace(/\s/g, '').toLowerCase();
+    const cleanPassword = req.body.password.replace(/\s/g, '');
+    
+    const user = await db.get('SELECT * FROM users WHERE username = ?', [cleanUsername]);
+    if (user && await bcrypt.compare(cleanPassword, user.password)) {
         if (user.status === 'LOCKED' && user.is_admin !== 1) return res.render('login', { error: `Account is LOCKED. Please contact support.` });
         req.session.userId = user.id;
         if (user.is_admin === 1) return res.redirect('/admin');
@@ -88,29 +85,33 @@ app.post('/login', async (req, res) => {
 
 app.get('/register', (req, res) => res.render('register', { error: null }));
 app.post('/register', async (req, res) => {
-    const { username, password, confirm_password, full_name, email, phone, dob, street, city, state, postal_code, country } = req.body;
-    if (password !== confirm_password) return res.render('register', { error: "Passwords do not match." });
-    const existing = await db.get('SELECT * FROM users WHERE username = ?', [username.toLowerCase()]);
+    const { full_name, email, phone, street, city, state, postal_code, country } = req.body;
+    
+    // SECURITY: Remove spaces and force lowercase for username. Remove spaces from passwords.
+    const cleanUsername = req.body.username.replace(/\s/g, '').toLowerCase();
+    const cleanPassword = req.body.password.replace(/\s/g, '');
+    const cleanConfirm = req.body.confirm_password.replace(/\s/g, '');
+
+    if (cleanPassword !== cleanConfirm) return res.render('register', { error: "Passwords do not match." });
+    const existing = await db.get('SELECT * FROM users WHERE username = ?', [cleanUsername]);
     if (existing) return res.render('register', { error: "Username already taken." });
     
-    const hash = await bcrypt.hash(password, 10);
+    const hash = await bcrypt.hash(cleanPassword, 10);
     try {
-        const result = await db.run('INSERT INTO users (username, password, initial_password, status) VALUES (?, ?, ?, ?)', [username.toLowerCase(), hash, password, 'PENDING']);
+        const result = await db.run('INSERT INTO users (username, password, initial_password, status) VALUES (?, ?, ?, ?)', [cleanUsername, hash, cleanPassword, 'PENDING']);
         const newId = result.lastID;
+        await db.run('INSERT INTO profiles (user_id, full_name, email, phone, street, city, state, postal_code, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [newId, full_name, email, phone, street, city, state, postal_code, country]);
         
-        await db.run('INSERT INTO profiles (user_id, full_name, email, phone, dob, street, city, state, postal_code, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-            [newId, full_name, email, phone, dob, street, city, state, postal_code, country]);
-        
-        const iban = "VEN" + Math.floor(Math.random() * 100000000000);
+        const iban = "CLR" + Math.floor(Math.random() * 100000000000);
         const btc_address = "bc1q" + crypto.randomBytes(20).toString('hex');
         const eth_address = "0x" + crypto.randomBytes(20).toString('hex');
 
         await db.run('INSERT INTO accounts (user_id, iban, swift, btc_address, eth_address, fiat_cents, btc_sats, eth_sats, hisa_cents, btc_status, eth_status, hisa_status, hisa_tier, account_tier, tier_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-            [newId, iban, 'VENRAXX', btc_address, eth_address, 0, 0, 0, 0, 'INACTIVE', 'INACTIVE', 'INACTIVE', 'Standard', 'Basic', 'ACTIVE']); 
+            [newId, iban, 'CLRBNKXX', btc_address, eth_address, 0, 0, 0, 0, 'INACTIVE', 'INACTIVE', 'INACTIVE', 'Standard', 'Basic', 'ACTIVE']); 
 
         req.session.userId = newId;
         res.redirect('/dashboard');
-    } catch (err) { console.error(err); res.render('register', { error: "System error during registration." }); }
+    } catch (err) { res.render('register', { error: "System error during registration." }); }
 });
 app.post('/logout', (req, res) => { req.session.destroy(); res.redirect('/login'); });
 
@@ -163,62 +164,9 @@ app.get('/send', requireAuth, async (req, res) => {
     res.render('send', data);
 });
 
-// NEW: Support route with Error/Msg handling
-app.get('/support', requireAuth, async (req, res) => {
-    const data = await getUserData(req.session.userId);
-    data.msg = req.query.msg;
-    data.error = req.query.error;
-    res.render('support', data);
-});
-
-// NEW: Freeze account logic
-app.post('/account/freeze', requireAuth, async (req, res) => {
-    const { password } = req.body;
-    const user = await db.get('SELECT password FROM users WHERE id = ?', [req.session.userId]);
-    if (await bcrypt.compare(password, user.password)) {
-        await db.run('UPDATE users SET status = ? WHERE id = ?', ['SUSPENDED', req.session.userId]);
-        res.redirect('/support?msg=Account successfully frozen');
-    } else {
-        res.redirect('/support?error=Incorrect password');
-    }
-});
-
+app.get('/support', requireAuth, async (req, res) => res.render('support', await getUserData(req.session.userId)));
 app.get('/hisa', requireAuth, async (req, res) => res.render('hisa', await getUserData(req.session.userId)));
 app.post('/hisa/activate', requireAuth, async (req, res) => { await db.run('UPDATE accounts SET hisa_status = ? WHERE user_id = ?', ['PENDING', req.session.userId]); res.redirect('/hisa'); });
-
-app.get('/crypto', requireAuth, async (req, res) => {
-    const data = await getUserData(req.session.userId);
-    if (data.account.btc_status !== 'ACTIVE' && data.account.eth_status !== 'ACTIVE') {
-        return res.redirect('/dashboard');
-    }
-    res.render('crypto', data);
-});
-
-app.post('/crypto/transfer', requireAuth, async (req, res) => {
-    const userId = req.session.userId;
-    const userCheck = await db.get('SELECT status FROM users WHERE id = ?', [userId]);
-    if (userCheck.status === 'SUSPENDED' || userCheck.status === 'PENDING') return res.redirect('/crypto');
-
-    const { currency, address, amount } = req.body;
-    const numAmount = parseFloat(amount);
-    const account = await db.get('SELECT * FROM accounts WHERE user_id = ?', [userId]);
-    const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-    if (currency === 'BTC' && account.btc_status === 'ACTIVE') {
-        const sats = Math.round(numAmount * 100000000);
-        if (account.btc_sats >= sats && sats > 0) {
-            await db.run('UPDATE accounts SET btc_sats = btc_sats - ? WHERE user_id = ?', [sats, userId]);
-            await db.run('INSERT INTO transactions (user_id, name, direction, currency, amount, raw_amount, status, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [userId, `To: ${address.substring(0, 10)}...`, 'OUTGOING', 'BTC', `${numAmount.toFixed(8)} BTC`, numAmount, 'PENDING', today]);
-        }
-    } else if (currency === 'ETH' && account.eth_status === 'ACTIVE') {
-        const sats = Math.round(numAmount * 100000000); // Using sats logic for easy database integers
-        if (account.eth_sats >= sats && sats > 0) {
-            await db.run('UPDATE accounts SET eth_sats = eth_sats - ? WHERE user_id = ?', [sats, userId]);
-            await db.run('INSERT INTO transactions (user_id, name, direction, currency, amount, raw_amount, status, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [userId, `To: ${address.substring(0, 10)}...`, 'OUTGOING', 'ETH', `${numAmount.toFixed(8)} ETH`, numAmount, 'PENDING', today]);
-        }
-    }
-    res.redirect('/transfers');
-});
 
 app.post('/transfer/internal', requireAuth, async (req, res) => {
     const userId = req.session.userId;
@@ -251,12 +199,16 @@ app.post('/api/chat', requireAuth, async (req, res) => {
 
 app.get('/profile', requireAuth, async (req, res) => { const data = await getUserData(req.session.userId); res.render('profile', { user: data, profile: data.profile, msg: req.query.msg }); });
 app.post('/profile', requireAuth, async (req, res) => {
-    const { full_name, email, phone, dob, street, city, state, postal_code, country } = req.body;
-    await db.run('UPDATE profiles SET full_name=?, email=?, phone=?, dob=?, street=?, city=?, state=?, postal_code=?, country=? WHERE user_id=?', [full_name, email, phone, dob, street, city, state, postal_code, country, req.session.userId]);
+    const { full_name, email, phone, street, city, state, postal_code, country } = req.body;
+    await db.run('UPDATE profiles SET full_name=?, email=?, phone=?, street=?, city=?, state=?, postal_code=?, country=? WHERE user_id=?', [full_name, email, phone, street, city, state, postal_code, country, req.session.userId]);
     res.redirect('/profile?msg=Profile Updated');
 });
 app.post('/profile/password', requireAuth, async (req, res) => {
-    const { current_password, new_password, confirm_password } = req.body;
+    // SECURITY: Remove spaces from password updates
+    const current_password = req.body.current_password.replace(/\s/g, '');
+    const new_password = req.body.new_password.replace(/\s/g, '');
+    const confirm_password = req.body.confirm_password.replace(/\s/g, '');
+
     if (new_password !== confirm_password) return res.redirect('/profile?msg=Passwords Do Not Match');
     const user = await db.get('SELECT password FROM users WHERE id = ?', [req.session.userId]);
     if (await bcrypt.compare(current_password, user.password)) {
@@ -270,10 +222,14 @@ app.post('/send', requireAuth, async (req, res) => {
     const userCheck = await db.get('SELECT status FROM users WHERE id = ?', [userId]);
     if (userCheck.status === 'SUSPENDED' || userCheck.status === 'PENDING') return res.redirect('/send');
 
-    const { amount, recipientName } = req.body;
+    const { amount, recipient_name, crypto_address, currency_type } = req.body;
     const account = await db.get('SELECT * FROM accounts WHERE user_id = ?', [userId]);
-    const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const today = new Date().toLocaleDateString();
     const numAmount = parseFloat(amount);
+
+    if (isNaN(numAmount) || numAmount <= 0) {
+        return res.redirect('/send?error=Please enter a valid amount.');
+    }
 
     let dailyLimit = 10000;
     if (account.account_tier === 'Standard') dailyLimit = 50000;
@@ -284,13 +240,24 @@ app.post('/send', requireAuth, async (req, res) => {
     let sentToday = 0;
     todaysTxs.forEach(tx => { sentToday += tx.raw_amount; });
 
-    if ((sentToday + numAmount) > dailyLimit) {
-        return res.redirect(`/send?error=Daily transfer limit of €${dailyLimit.toLocaleString()} exceeded. Please request a tier upgrade.`);
-    }
-    const cents = Math.round(numAmount * 100);
-    if (account.fiat_cents >= cents && cents > 0) {
+    if (currency_type === 'btc' && account.btc_status === 'ACTIVE') {
+        const sats = Math.round(numAmount * 100000000);
+        if (account.btc_sats < sats) return res.redirect('/send?error=Insufficient Bitcoin balance for this transfer.');
+        await db.run('UPDATE accounts SET btc_sats = btc_sats - ? WHERE user_id = ?', [sats, userId]);
+        await db.run('INSERT INTO transactions (user_id, name, direction, currency, amount, raw_amount, status, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [userId, 'Network Transfer', 'OUTGOING', 'BTC', `${numAmount} BTC`, numAmount, 'PENDING', today]);
+        
+    } else if (currency_type === 'eth' && account.eth_status === 'ACTIVE') {
+        const sats = Math.round(numAmount * 100000000);
+        if (account.eth_sats < sats) return res.redirect('/send?error=Insufficient Ethereum balance for this transfer.');
+        await db.run('UPDATE accounts SET eth_sats = eth_sats - ? WHERE user_id = ?', [sats, userId]);
+        await db.run('INSERT INTO transactions (user_id, name, direction, currency, amount, raw_amount, status, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [userId, 'Network Transfer', 'OUTGOING', 'ETH', `${numAmount} ETH`, numAmount, 'PENDING', today]);
+        
+    } else if (currency_type === 'eur') {
+        const cents = Math.round(numAmount * 100);
+        if (account.fiat_cents < cents) return res.redirect('/send?error=Insufficient EUR balance for this transfer.');
+        if ((sentToday + numAmount) > dailyLimit) return res.redirect(`/send?error=Daily transfer limit of €${dailyLimit.toLocaleString()} exceeded. Please request a tier upgrade.`);
         await db.run('UPDATE accounts SET fiat_cents = fiat_cents - ? WHERE user_id = ?', [cents, userId]);
-        await db.run('INSERT INTO transactions (user_id, name, direction, currency, amount, raw_amount, status, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [userId, recipientName || 'Bank Transfer', 'OUTGOING', 'EUR', `${numAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} EUR`, numAmount, 'PENDING', today]);
+        await db.run('INSERT INTO transactions (user_id, name, direction, currency, amount, raw_amount, status, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [userId, recipient_name || 'Bank Transfer', 'OUTGOING', 'EUR', `${numAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} EUR`, numAmount, 'PENDING', today]);
     }
     res.redirect('/transfers');
 });
@@ -322,10 +289,10 @@ app.get('/admin/user/:id', requireAdmin, async (req, res) => {
 });
 
 app.post('/admin/user/:id/edit', requireAdmin, async (req, res) => {
-    const { full_name, email, phone, dob, street, city, state, postal_code, country, iban, swift, btc_address, eth_address, fiat_balance, hisa_balance, btc_balance, eth_balance } = req.body;
+    const { full_name, email, phone, street, city, state, postal_code, country, iban, swift, fiat_balance, hisa_balance, btc_balance, eth_balance } = req.body;
     const userId = req.params.id;
-    await db.run('UPDATE profiles SET full_name=?, email=?, phone=?, dob=?, street=?, city=?, state=?, postal_code=?, country=? WHERE user_id=?', [full_name, email, phone, dob, street, city, state, postal_code, country, userId]);
-    await db.run('UPDATE accounts SET iban=?, swift=?, btc_address=?, eth_address=?, fiat_cents=?, hisa_cents=?, btc_sats=?, eth_sats=? WHERE user_id=?', [iban, swift, btc_address, eth_address, Math.round(parseFloat(fiat_balance)*100), Math.round(parseFloat(hisa_balance)*100), Math.round(parseFloat(btc_balance)*100000000), Math.round(parseFloat(eth_balance)*100000000), userId]);
+    await db.run('UPDATE profiles SET full_name=?, email=?, phone=?, street=?, city=?, state=?, postal_code=?, country=? WHERE user_id=?', [full_name, email, phone, street, city, state, postal_code, country, userId]);
+    await db.run('UPDATE accounts SET iban=?, swift=?, fiat_cents=?, hisa_cents=?, btc_sats=?, eth_sats=? WHERE user_id=?', [iban, swift, Math.round(parseFloat(fiat_balance)*100), Math.round(parseFloat(hisa_balance)*100), Math.round(parseFloat(btc_balance)*100000000), Math.round(parseFloat(eth_balance)*100000000), userId]);
     res.redirect(`/admin/user/${userId}`);
 });
 
@@ -361,33 +328,20 @@ app.post('/admin/user/:id/set_tier', requireAdmin, async (req, res) => {
     res.redirect(`/admin/user/${req.params.id}`);
 });
 
-// INJECT MOCK TRANSFER
 app.post('/admin/user/:id/inject', requireAdmin, async (req, res) => {
-    const { amount, currency, sender_name, sender_iban, custom_date } = req.body;
+    const { amount, currency, sender_name, sender_iban } = req.body;
     const numAmount = parseFloat(amount);
-    
-    const today = (custom_date && custom_date.trim() !== '') ? custom_date.trim() : new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    
+    const today = new Date().toLocaleDateString();
     let txName = sender_name || 'External Transfer';
     if (sender_iban) txName += ` • ${sender_iban}`;
     let amountStr = '';
     if (currency === 'EUR') amountStr = `${numAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} EUR`;
-    else if (currency === 'BTC') amountStr = `${numAmount.toFixed(8)} BTC`;
-    else if (currency === 'ETH') amountStr = `${numAmount.toFixed(8)} ETH`;
-    
+    else if (currency === 'BTC') amountStr = `${numAmount} BTC`;
+    else if (currency === 'ETH') amountStr = `${numAmount} ETH`;
     await db.run('INSERT INTO transactions (user_id, name, direction, currency, amount, raw_amount, status, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [req.params.id, txName, 'INCOMING', currency, amountStr, numAmount, 'PENDING', today]);
     res.redirect(`/admin/user/${req.params.id}`);
 });
 
-// EDIT EXISTING TRANSACTION
-app.post('/admin/tx/:id/edit', requireAdmin, async (req, res) => {
-    const { tx_name, tx_amount, tx_status, tx_date } = req.body;
-    await db.run('UPDATE transactions SET name = ?, amount = ?, status = ?, date = ? WHERE id = ?', 
-        [tx_name, tx_amount, tx_status, tx_date, req.params.id]);
-    res.redirect(req.get('referer') || '/admin/users');
-});
-
-// APPROVE TRANSACTION
 app.post('/admin/tx/:id/approve', requireAdmin, async (req, res) => {
     const tx = await db.get('SELECT * FROM transactions WHERE id = ?', [req.params.id]);
     if (tx && tx.status === 'PENDING') {
@@ -401,7 +355,6 @@ app.post('/admin/tx/:id/approve', requireAdmin, async (req, res) => {
     res.redirect(req.get('referer') || '/admin/users');
 });
 
-// DECLINE TRANSACTION
 app.post('/admin/tx/:id/decline', requireAdmin, async (req, res) => {
     const tx = await db.get('SELECT * FROM transactions WHERE id = ?', [req.params.id]);
     if (tx && tx.status === 'PENDING') {
@@ -437,4 +390,4 @@ app.get('/admin/comms', requireAdmin, async (req, res) => { res.render('admin-co
 app.get('/admin/api/chat/:userId', requireAdmin, async (req, res) => { res.json(await db.all('SELECT * FROM messages WHERE user_id = ? ORDER BY id ASC', [req.params.userId])); });
 app.post('/admin/api/chat/:userId', requireAdmin, async (req, res) => { if (req.body.content.trim()) await db.run('INSERT INTO messages (user_id, sender, content) VALUES (?, ?, ?)', [req.params.userId, 'admin', req.body.content]); res.json({ success: true }); });
 
-app.listen(PORT, () => console.log(`🚀 CLEAR BANK LIVE on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 CLEAR.BANK LIVE on http://localhost:${PORT}`));

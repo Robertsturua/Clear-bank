@@ -3,7 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Prismapay | Account Details</title>
+  <title>Clear.Bank | Account Details</title>
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="white" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/mobile.css">
   
@@ -12,127 +15,57 @@
   <style>
     body { background-color: var(--mob-bg); overflow-x: hidden; }
     
-    .acc-header {
-      display: flex; align-items: center;
-      padding: 16px 20px;
-      padding-top: max(20px, env(safe-area-inset-top));
-      background: var(--mob-bg);
-      position: sticky;
-      top: 0;
-      z-index: 100;
+    /* PC Desktop Constraint */
+    @media (min-width: 768px) {
+      body { max-width: 480px; margin: 0 auto; border-left: 1px solid var(--mob-border); border-right: 1px solid var(--mob-border); box-shadow: 0 0 50px rgba(0,0,0,0.1); position: relative; min-height: 100vh; }
+      .mob-bottom-nav, .upgrade-sheet, .toast-notif, .ios-modal-sheet { max-width: 480px; margin: 0 auto; left: 0; right: 0; }
     }
-    .acc-close-btn {
-      background: var(--mob-surface); border: 1px solid var(--mob-border); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--mob-text); box-shadow: var(--mob-shadow-sm); transition: 0.2s; text-decoration: none;
-    }
+    
+    .acc-header { display: flex; align-items: center; padding: 16px 20px; padding-top: max(20px, env(safe-area-inset-top)); background: var(--mob-bg); position: sticky; top: 0; z-index: 100; }
+    .acc-close-btn { background: var(--mob-surface); border: 1px solid var(--mob-border); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--mob-text); box-shadow: var(--mob-shadow-sm); transition: 0.2s; text-decoration: none; }
     .acc-close-btn:active { transform: scale(0.95); }
     .acc-header h1 { margin: 0 0 0 16px; font-size: 20px; font-weight: 800; color: var(--mob-text); }
 
     /* Branded Promo Card */
-    .acc-promo-card {
-      background: var(--mob-primary); /* Deep Navy */
-      border-radius: var(--mob-radius-lg);
-      padding: 28px 24px;
-      margin: 10px 20px 24px 20px; color: white;
-      position: relative;
-      overflow: hidden;
-      box-shadow: var(--mob-shadow-md);
-    }
-    .acc-promo-card::after {
-      content: ''; position: absolute; top: -50%; right: -20%; width: 200px; height: 200px;
-      background: radial-gradient(circle, rgba(0, 229, 196, 0.15) 0%, transparent 70%); pointer-events: none;
-    }
+    .acc-promo-card { background: var(--mob-primary); border-radius: var(--mob-radius-lg); padding: 28px 24px; margin: 10px 20px 24px 20px; color: white; position: relative; overflow: hidden; box-shadow: var(--mob-shadow-md); }
+    .acc-promo-card::after { content: ''; position: absolute; top: -50%; right: -20%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(0, 229, 196, 0.15) 0%, transparent 70%); pointer-events: none; }
     .acc-promo-card h2 { font-size: 22px; font-weight: 800; margin: 0 0 12px 0; line-height: 1.2; letter-spacing: -0.5px; position: relative; z-index: 1; }
     .acc-promo-card p { font-size: 14px; color: rgba(255,255,255,0.8); margin: 0 0 24px 0; line-height: 1.5; max-width: 90%; position: relative; z-index: 1; }
-    .acc-promo-btn {
-      background: var(--mob-accent); /* Vibrant Cyan */
-      color: var(--mob-primary); /* Deep Navy Text */
-      border: none;
-      padding: 12px 24px;
-      border-radius: 20px;
-      font-size: 14px; font-weight: 800;
-      cursor: pointer;
-      transition: transform 0.2s;
-      position: relative; z-index: 1;
-    }
+    .acc-promo-btn { background: var(--mob-accent); color: var(--mob-primary); border: none; padding: 12px 24px; border-radius: 20px; font-size: 14px; font-weight: 800; cursor: pointer; transition: transform 0.2s; position: relative; z-index: 1; }
     .acc-promo-btn:active { transform: scale(0.96); }
 
     /* Details Section */
-    .acc-section-title {
-      display: flex; justify-content: space-between;
-      align-items: center;
-      margin: 0 24px 12px 24px;
-    }
+    .acc-section-title { display: flex; justify-content: space-between; align-items: center; margin: 0 24px 12px 24px; }
     .acc-section-title h3 { font-size: 15px; font-weight: 700; color: var(--mob-text-muted); margin: 0; display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 0.5px;}
-    
-    .acc-currency-badge { 
-      background: var(--mob-surface); border: 1px solid var(--mob-border); 
-      padding: 4px 10px 4px 6px; 
-      border-radius: 20px; 
-      font-size: 12px; 
-      font-weight: 700; 
-      color: var(--mob-text);
-      display: flex; align-items: center; 
-      gap: 6px; 
-      box-shadow: var(--mob-shadow-sm);
-      text-transform: none;
-      letter-spacing: 0;
-    }
-    .acc-currency-icon {
-      width: 18px; height: 18px; background: var(--mob-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;
-    }
+    .acc-currency-badge { background: var(--mob-surface); border: 1px solid var(--mob-border); padding: 4px 10px 4px 6px; border-radius: 20px; font-size: 12px; font-weight: 700; color: var(--mob-text); display: flex; align-items: center; gap: 6px; box-shadow: var(--mob-shadow-sm); text-transform: none; letter-spacing: 0; }
+    .acc-currency-icon { width: 18px; height: 18px; background: var(--mob-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; }
     .acc-currency-icon svg { width: 10px; height: 10px; stroke-width: 3px; }
-
     .acc-section-title button { background: none; border: none; color: var(--mob-primary); font-weight: 700; font-size: 14px; cursor: pointer; }
 
     /* FULLY VISIBLE DETAIL ROWS */
-    .acc-details-card {
-      background: var(--mob-surface); margin: 0 20px 24px 20px;
-      border-radius: var(--mob-radius-lg);
-      padding: 12px 20px;
-      box-shadow: var(--mob-shadow-sm);
-      border: 1px solid var(--mob-border);
-    }
-    
-    .acc-detail-row {
-      display: flex;
-      justify-content: space-between; align-items: flex-start;
-      padding: 16px 0;
-      border-bottom: 1px solid var(--mob-border);
-    }
+    .acc-details-card { background: var(--mob-surface); margin: 0 20px 24px 20px; border-radius: var(--mob-radius-lg); padding: 12px 20px; box-shadow: var(--mob-shadow-sm); border: 1px solid var(--mob-border); }
+    .acc-detail-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid var(--mob-border); }
     .acc-detail-row:last-child { border-bottom: none; }
-    
     .acc-detail-text { display: flex; flex-direction: column; gap: 4px; flex: 1; padding-right: 12px; }
     .acc-detail-label { font-size: 13px; color: var(--mob-text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
     .acc-detail-value { font-size: 16px; font-weight: 700; color: var(--mob-text); word-break: break-all; }
     .acc-detail-value.monospace { font-family: monospace; letter-spacing: 0.5px; }
-    
-    .acc-copy-btn {
-      background: var(--mob-bg);
-      color: var(--mob-primary); border: 1px solid var(--mob-border);
-      width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; flex-shrink: 0;
-    }
+    .acc-copy-btn { background: var(--mob-bg); color: var(--mob-primary); border: 1px solid var(--mob-border); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
     .acc-copy-btn svg { width: 16px; height: 16px; stroke-width: 2.5px; }
 
     /* Reusable Card for Plan & Help */
-    .acc-plan-card {
-      background: var(--mob-surface); margin: 0 20px 24px 20px; border-radius: var(--mob-radius-md); padding: 20px; display: flex; align-items: center; gap: 16px; box-shadow: var(--mob-shadow-sm); border: 1px solid var(--mob-border); cursor: pointer; text-decoration: none; transition: transform 0.2s;
-    }
+    .acc-plan-card { background: var(--mob-surface); margin: 0 20px 24px 20px; border-radius: var(--mob-radius-md); padding: 20px; display: flex; align-items: center; gap: 16px; box-shadow: var(--mob-shadow-sm); border: 1px solid var(--mob-border); cursor: pointer; text-decoration: none; transition: transform 0.2s; }
     .acc-plan-card:active { transform: scale(0.98); }
     .acc-plan-icon { width: 44px; height: 44px; background: var(--mob-primary-dim); color: var(--mob-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .acc-plan-icon svg { width: 22px; height: 22px; stroke-width: 2px; }
     .acc-plan-text h4 { margin: 0 0 4px 0; font-size: 15px; font-weight: 700; color: var(--mob-text); }
     .acc-plan-text p { margin: 0; font-size: 13px; color: var(--mob-text-muted); line-height: 1.4; }
     
-    .status-alert {
-      background: #fefce8; color: #854d0e; padding: 16px 20px; margin: 10px 20px 20px 20px; border-radius: 12px; font-size: 13px; font-weight: 600; border: 1px solid #fde047; display: flex; align-items: center; gap: 12px;
-    }
+    .status-alert { background: #fefce8; color: #854d0e; padding: 16px 20px; margin: 10px 20px 20px 20px; border-radius: 12px; font-size: 13px; font-weight: 600; border: 1px solid #fde047; display: flex; align-items: center; gap: 12px; }
 
     /* Upgrade Bottom Sheet */
     .upgrade-sheet-overlay { position: fixed; inset: 0; background: rgba(5, 16, 36, 0.6); z-index: 300; display: none; opacity: 0; transition: opacity 0.3s; }
-    .upgrade-sheet {
-      position: fixed; bottom: 0; left: 0; right: 0; background: var(--mob-bg); border-radius: 24px 24px 0 0; z-index: 301;
-      transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom));
-    }
+    .upgrade-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: var(--mob-bg); border-radius: 24px 24px 0 0; z-index: 301; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom)); }
     .upgrade-sheet.open { transform: translateY(0); }
     .upgrade-sheet-overlay.open { display: block; opacity: 1; }
     
@@ -144,13 +77,27 @@
     .plan-option.active { border-color: var(--mob-primary); box-shadow: 0 0 0 2px var(--mob-primary-dim); background: var(--mob-surface); }
     .plan-text h4 { margin: 0 0 4px 0; font-size: 16px; font-weight: 700; color: var(--mob-text); }
     .plan-text p { margin: 0; font-size: 13px; color: var(--mob-text-muted); }
-
     .btn-select-plan { background: white; border: 1px solid var(--mob-primary); color: var(--mob-primary); padding: 8px 16px; border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
     .badge-active { background: var(--mob-primary); color: white; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; }
 
     /* Custom Toast Notification */
     .toast-notif { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--mob-primary); color: white; padding: 12px 24px; border-radius: 20px; font-size: 14px; font-weight: 600; box-shadow: var(--mob-shadow-md); z-index: 999; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); white-space: nowrap; }
     .toast-notif.show { transform: translateX(-50%) translateY(0); }
+
+    /* IOS MODAL STYLES */
+    .ios-modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s; }
+    .ios-modal-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: var(--cb-white); border-radius: 24px 24px 0 0; z-index: 1001; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); padding: 32px 24px; padding-bottom: max(32px, env(safe-area-inset-bottom)); text-align: center; }
+    .ios-modal-sheet.open { transform: translateY(0); }
+    .ios-modal-overlay.open { display: block; opacity: 1; }
+    .ios-modal-icon { width: 64px; height: 64px; background: #f3f4f6; border-radius: 16px; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center; }
+    .ios-modal-icon img { width: 40px; height: 40px; }
+    .ios-modal-sheet h3 { font-size: 22px; font-weight: 800; color: var(--cb-black); margin-bottom: 12px; letter-spacing: -0.5px; }
+    .ios-modal-sheet p { font-size: 16px; color: var(--cb-text-muted); line-height: 1.5; margin-bottom: 24px; }
+    .ios-steps { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px; text-align: left; margin-bottom: 24px; }
+    .ios-step { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font-size: 15px; font-weight: 600; color: var(--cb-text); }
+    .ios-step:last-child { margin-bottom: 0; }
+    .ios-step svg { color: var(--cb-pink); width: 24px; height: 24px; }
+    .btn-got-it { background: var(--cb-black); color: var(--cb-white); border: none; width: 100%; padding: 16px; border-radius: 16px; font-size: 16px; font-weight: 700; cursor: pointer; }
 
     .mob-nav-icon svg { width: 24px; height: 24px; stroke-width: 2px; margin-bottom: 2px; }
   </style>
@@ -160,13 +107,28 @@
   <div id="toast" class="toast-notif">Message</div>
 
   <header class="acc-header" style="justify-content: space-between;">
-    <div style="display: flex; align-items: center; gap: 16px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
       <a href="/dashboard" class="acc-close-btn"><i data-lucide="arrow-left" style="width: 18px;"></i></a>
+      <svg width="24" height="24" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="border-radius: 6px;">
+        <defs>
+          <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#000000"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient>
+          <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#FF3385"/><stop offset="100%" stop-color="#00E5C4"/></linearGradient>
+        </defs>
+        <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+        <rect x="32" y="32" width="448" height="448" rx="88" fill="none" stroke="url(#accent)" stroke-width="16"/>
+        <text x="50%" y="54%" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="220" font-weight="800" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" letter-spacing="-8">C.B</text>
+      </svg>
       <h1 style="margin: 0; font-size: 20px; font-weight: 800; color: var(--mob-text);">Accounts</h1>
     </div>
-    <button class="mob-avatar-mini" onclick="openProfileMenu()">
-      <%= typeof username !== 'undefined' && username ? username.charAt(0).toUpperCase() : 'U' %>
-    </button>
+    
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button class="pwa-install-btn" style="display: none; background: var(--mob-accent); color: var(--mob-primary); border: none; padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 13px; align-items: center; gap: 6px; cursor: pointer; box-shadow: var(--mob-shadow-sm);" onclick="triggerInstall()">
+        App <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+      </button>
+      <button class="mob-avatar-mini" onclick="openProfileMenu()">
+        <%= typeof username !== 'undefined' && username ? username.charAt(0).toUpperCase() : 'U' %>
+      </button>
+    </div>
   </header>
 
   <% if (account.tier_status === 'PENDING') { %>
@@ -316,6 +278,29 @@
     </div>
   </div>
 
+  <div class="ios-modal-overlay" id="iosModalOverlay" onclick="closeIOSModal()"></div>
+  <div class="ios-modal-sheet" id="iosModalSheet">
+    <div class="ios-modal-icon">
+      <img src="/logo.svg" alt="ClearBank Logo">
+    </div>
+    <h3>Install Clear.Bank App</h3>
+    <p>Install this application on your home screen for quick and easy access when you're on the go.</p>
+    
+    <div class="ios-steps">
+      <div class="ios-step">
+        <span>1.</span>
+        <span>Tap the <strong>Share</strong> button at the bottom of Safari.</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: auto; color: var(--cb-black);"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+      </div>
+      <div class="ios-step">
+        <span>2.</span>
+        <span>Scroll down and select <strong>Add to Home Screen</strong>.</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: auto; color: var(--cb-black);"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+      </div>
+    </div>
+    <button class="btn-got-it" onclick="closeIOSModal()">Got it!</button>
+  </div>
+
   <nav class="mob-bottom-nav">
     <a href="/dashboard" class="mob-nav-link">
       <span class="mob-nav-icon"><i data-lucide="home"></i></span>
@@ -337,7 +322,8 @@
 
   <script>
     lucide.createIcons();
-    
+
+    // Custom Toast
     function showToast(msg) {
       const toast = document.getElementById('toast');
       toast.innerText = msg;
@@ -351,12 +337,9 @@
         const originalContent = btnElement.innerHTML;
         btnElement.innerHTML = '<i data-lucide="check" style="width: 16px; height: 16px; stroke-width: 3px;"></i>';
         lucide.createIcons(); 
-        
         btnElement.style.background = 'var(--mob-primary-dim)';
         btnElement.style.color = 'var(--mob-primary)';
-        
         showToast('Copied to clipboard');
-
         setTimeout(() => {
           btnElement.innerHTML = originalContent;
           lucide.createIcons(); 
@@ -367,14 +350,46 @@
       }
     }
 
+    // Sheet Controls
     function openUpgradeSheet() {
       document.getElementById('upgradeOverlay').classList.add('open');
       setTimeout(() => document.getElementById('upgradeSheet').classList.add('open'), 10);
     }
-
     function closeUpgradeSheet() {
       document.getElementById('upgradeSheet').classList.remove('open');
       setTimeout(() => document.getElementById('upgradeOverlay').classList.remove('open'), 300);
+    }
+
+    // ADVANCED PWA INSTALL LOGIC (APPLE BYPASS)
+    let deferredPrompt;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+    if (!isStandalone) {
+      if (isIOS) {
+        document.querySelectorAll('.pwa-install-btn').forEach(btn => { btn.style.display = 'flex'; });
+      } else {
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+          document.querySelectorAll('.pwa-install-btn').forEach(btn => { btn.style.display = 'flex'; });
+        });
+      }
+    }
+
+    function triggerInstall() {
+      if (isIOS) {
+        document.getElementById('iosModalOverlay').classList.add('open');
+        setTimeout(() => document.getElementById('iosModalSheet').classList.add('open'), 10);
+      } else if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => { deferredPrompt = null; });
+      }
+    }
+
+    function closeIOSModal() {
+      document.getElementById('iosModalSheet').classList.remove('open');
+      setTimeout(() => document.getElementById('iosModalOverlay').classList.remove('open'), 300);
     }
   </script>
 

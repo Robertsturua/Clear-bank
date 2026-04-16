@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Prismapay | Crypto Wallets</title>
+  <title>Clear.Bank | Crypto Wallets</title>
   <link rel="manifest" href="/manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="white" />
@@ -15,26 +15,18 @@
   <style>
     body { background-color: var(--mob-bg); overflow-x: hidden; }
     
-    .crypto-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 20px; padding-top: max(20px, env(safe-area-inset-top));
-      background: var(--mob-bg); position: sticky; top: 0; z-index: 100;
-    }
-    .crypto-header h1 { margin: 0; font-size: 20px; font-weight: 800; color: var(--mob-text); }
-    .btn-back { background: var(--mob-surface); border: 1px solid var(--mob-border); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--mob-text); box-shadow: var(--mob-shadow-sm); }
-
-    .crypto-card {
-      border-radius: var(--mob-radius-lg); padding: 24px; margin: 16px 20px; color: white; position: relative; overflow: hidden; box-shadow: var(--mob-shadow-md);
+    /* PC Desktop Constraint */
+    @media (min-width: 768px) {
+      body { max-width: 480px; margin: 0 auto; border-left: 1px solid var(--mob-border); border-right: 1px solid var(--mob-border); box-shadow: 0 0 50px rgba(0,0,0,0.1); position: relative; min-height: 100vh; }
+      .mob-bottom-nav, .modal-sheet, .success-overlay, .toast-notif, .ios-modal-sheet { max-width: 480px; margin: 0 auto; left: 0; right: 0; }
     }
     
-    .crypto-card.btc {
-      background: linear-gradient(135deg, #1e1b4b 0%, #000000 100%);
-      border: 1px solid #f59e0b;
-    }
-    .crypto-card.eth {
-      background: linear-gradient(135deg, #172554 0%, #000000 100%);
-      border: 1px solid #3b82f6;
-    }
+    .crypto-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; padding-top: max(20px, env(safe-area-inset-top)); background: var(--mob-bg); position: sticky; top: 0; z-index: 100; }
+    .btn-back { background: var(--mob-surface); border: 1px solid var(--mob-border); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--mob-text); box-shadow: var(--mob-shadow-sm); }
+
+    .crypto-card { border-radius: var(--mob-radius-lg); padding: 24px; margin: 16px 20px; color: white; position: relative; overflow: hidden; box-shadow: var(--mob-shadow-md); }
+    .crypto-card.btc { background: linear-gradient(135deg, #1e1b4b 0%, #000000 100%); border: 1px solid #f59e0b; }
+    .crypto-card.eth { background: linear-gradient(135deg, #172554 0%, #000000 100%); border: 1px solid #3b82f6; }
 
     .crypto-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; position: relative; z-index: 1; }
     .cch-left { display: flex; align-items: center; gap: 12px; }
@@ -44,27 +36,19 @@
     
     .crypto-title { font-size: 18px; font-weight: 800; margin: 0; }
     .crypto-subtitle { font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-
     .crypto-balance { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 24px; position: relative; z-index: 1; word-break: break-all;}
     
-    .wallet-address-box {
-      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; backdrop-filter: blur(4px); margin-bottom: 16px;
-    }
+    .wallet-address-box { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; backdrop-filter: blur(4px); margin-bottom: 16px; }
     .wallet-address { font-family: monospace; font-size: 13px; color: rgba(255,255,255,0.9); word-break: break-all; padding-right: 12px; }
     .btn-copy { background: transparent; border: none; color: white; cursor: pointer; padding: 4px; transition: 0.2s; }
     .btn-copy:active { transform: scale(0.9); opacity: 0.7; }
 
-    .btn-crypto-send {
-      width: 100%; background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; backdrop-filter: blur(4px); position: relative; z-index: 1;
-    }
+    .btn-crypto-send { width: 100%; background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; backdrop-filter: blur(4px); position: relative; z-index: 1; }
     .btn-crypto-send:active { transform: scale(0.98); background: rgba(255,255,255,0.25); }
 
     /* Modals & Forms */
     .modal-overlay { position: fixed; inset: 0; background: rgba(5, 16, 36, 0.6); z-index: 300; display: none; opacity: 0; transition: opacity 0.3s; }
-    .modal-sheet {
-      position: fixed; bottom: 0; left: 0; right: 0; background: var(--mob-bg); border-radius: 24px 24px 0 0; z-index: 301;
-      transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom)); max-height: 90vh; overflow-y: auto;
-    }
+    .modal-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: var(--mob-bg); border-radius: 24px 24px 0 0; z-index: 301; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom)); max-height: 90vh; overflow-y: auto; }
     .modal-sheet.open { transform: translateY(0); }
     .modal-overlay.open { display: block; opacity: 1; }
     
@@ -90,7 +74,6 @@
     .confirm-row:last-child { border-bottom: none; }
     .confirm-label { font-size: 14px; color: var(--mob-text-muted); font-weight: 500; }
     .confirm-value { font-size: 14px; color: var(--mob-text); font-weight: 700; text-align: right; font-family: monospace; word-break: break-all; max-width: 60%; }
-    
     .btn-submit-transfer { background: var(--mob-accent); color: var(--mob-primary); border: none; padding: 16px 20px; border-radius: 16px; font-weight: 800; font-size: 16px; width: 100%; cursor: pointer; box-shadow: 0 8px 20px rgba(0, 229, 196, 0.2); display: flex; justify-content: center; align-items: center; gap: 8px;}
 
     /* Success/Pending Screen */
@@ -103,6 +86,19 @@
     /* Custom Toast Notification */
     .toast-notif { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--mob-primary); color: white; padding: 12px 24px; border-radius: 20px; font-size: 14px; font-weight: 600; box-shadow: var(--mob-shadow-md); z-index: 999; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); text-align: center; }
     .toast-notif.show { transform: translateX(-50%) translateY(0); }
+
+    /* IOS MODAL STYLES */
+    .ios-modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 1000; display: none; opacity: 0; transition: opacity 0.3s; }
+    .ios-modal-sheet { position: fixed; bottom: 0; left: 0; right: 0; background: var(--mob-bg); border-radius: 24px 24px 0 0; z-index: 1001; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); padding: 32px 24px; padding-bottom: max(32px, env(safe-area-inset-bottom)); text-align: center; }
+    .ios-modal-sheet.open { transform: translateY(0); }
+    .ios-modal-overlay.open { display: block; opacity: 1; }
+    .ios-modal-icon { width: 64px; height: 64px; background: #f3f4f6; border-radius: 16px; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center; }
+    .ios-modal-sheet h3 { font-size: 22px; font-weight: 800; color: var(--mob-text); margin-bottom: 12px; letter-spacing: -0.5px; }
+    .ios-modal-sheet p { font-size: 16px; color: var(--mob-text-muted); line-height: 1.5; margin-bottom: 24px; }
+    .ios-steps { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px; text-align: left; margin-bottom: 24px; }
+    .ios-step { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font-size: 15px; font-weight: 600; color: var(--mob-text); }
+    .ios-step:last-child { margin-bottom: 0; }
+    .btn-got-it { background: var(--mob-text); color: var(--mob-bg); border: none; width: 100%; padding: 16px; border-radius: 16px; font-size: 16px; font-weight: 700; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -110,11 +106,28 @@
   <div id="toast" class="toast-notif">Address Copied</div>
 
   <header class="crypto-header">
-    <button class="btn-back" onclick="window.location.href='/dashboard'"><i data-lucide="arrow-left" style="width: 18px;"></i></button>
-    <h1>Crypto Wallets</h1>
-    <button class="mob-avatar-mini" onclick="openProfileMenu()">
-      <%= typeof username !== 'undefined' && username ? username.charAt(0).toUpperCase() : 'U' %>
-    </button>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button class="btn-back" onclick="window.location.href='/dashboard'"><i data-lucide="arrow-left" style="width: 18px;"></i></button>
+      <svg width="24" height="24" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="border-radius: 6px;">
+        <defs>
+          <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#000000"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient>
+          <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#FF3385"/><stop offset="100%" stop-color="#00E5C4"/></linearGradient>
+        </defs>
+        <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+        <rect x="32" y="32" width="448" height="448" rx="88" fill="none" stroke="url(#accent)" stroke-width="16"/>
+        <text x="50%" y="54%" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="220" font-weight="800" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" letter-spacing="-8">C.B</text>
+      </svg>
+      <h1 style="margin: 0; font-size: 18px; font-weight: 800; color: var(--mob-text);">Crypto Wallets</h1>
+    </div>
+    
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button class="pwa-install-btn" style="display: none; background: var(--mob-accent); color: var(--mob-primary); border: none; padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 13px; align-items: center; gap: 6px; cursor: pointer; box-shadow: var(--mob-shadow-sm);" onclick="triggerInstall()">
+        App <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+      </button>
+      <button class="mob-avatar-mini" onclick="openProfileMenu()">
+        <%= typeof username !== 'undefined' && username ? username.charAt(0).toUpperCase() : 'U' %>
+      </button>
+    </div>
   </header>
 
   <main class="mob-main-content" style="padding-top: 10px; padding-bottom: 100px;">
@@ -165,9 +178,9 @@
 
   </main>
 
-  <form id="cryptoForm" action="/crypto/transfer" method="POST" style="display: none;">
-    <input type="hidden" name="currency" id="hiddenCurrency">
-    <input type="hidden" name="address" id="hiddenAddress">
+  <form id="cryptoForm" action="/send" method="POST" style="display: none;">
+    <input type="hidden" name="currency_type" id="hiddenCurrency">
+    <input type="hidden" name="recipient_name" id="hiddenAddress">
     <input type="hidden" name="amount" id="hiddenAmount">
   </form>
 
@@ -222,10 +235,38 @@
     <button class="btn-submit-transfer" id="submitBtn" onclick="processCryptoTransfer()">Send Securely</button>
   </div>
 
-  <div class="success-overlay" id="successScreen">
-    <div class="success-icon-wrap">
-      <i data-lucide="clock"></i>
+  <div class="ios-modal-overlay" id="iosModalOverlay" onclick="closeIOSModal()"></div>
+  <div class="ios-modal-sheet" id="iosModalSheet">
+    <div class="ios-modal-icon">
+      <svg width="40" height="40" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="border-radius: 8px;">
+        <defs>
+          <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#000000"/><stop offset="100%" stop-color="#1a1a1a"/></linearGradient>
+          <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#FF3385"/><stop offset="100%" stop-color="#00E5C4"/></linearGradient>
+        </defs>
+        <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+        <rect x="32" y="32" width="448" height="448" rx="88" fill="none" stroke="url(#accent)" stroke-width="16"/>
+        <text x="50%" y="54%" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="220" font-weight="800" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" letter-spacing="-8">C.B</text>
+      </svg>
     </div>
+    <h3>Install Clear.Bank App</h3>
+    <p>Install this application on your home screen for quick and easy access when you're on the go.</p>
+    <div class="ios-steps">
+      <div class="ios-step">
+        <span>1.</span>
+        <span>Tap the <strong>Share</strong> button at the bottom of Safari.</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: auto; color: var(--mob-text);"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+      </div>
+      <div class="ios-step">
+        <span>2.</span>
+        <span>Scroll down and select <strong>Add to Home Screen</strong>.</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: auto; color: var(--mob-text);"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+      </div>
+    </div>
+    <button class="btn-got-it" onclick="closeIOSModal()">Got it!</button>
+  </div>
+
+  <div class="success-overlay" id="successScreen">
+    <div class="success-icon-wrap"><i data-lucide="clock"></i></div>
     <h2 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 800; color: var(--mob-text); letter-spacing: -0.5px;">Transfer Pending</h2>
     <p style="margin: 0 0 32px 0; font-size: 15px; color: var(--mob-text-muted); max-width: 80%;">Your transaction has been broadcasted and is awaiting network confirmation.</p>
     
@@ -236,22 +277,10 @@
   </div>
 
   <nav class="mob-bottom-nav">
-    <a href="/dashboard" class="mob-nav-link">
-      <span class="mob-nav-icon"><i data-lucide="home"></i></span>
-      Home
-    </a>
-    <a href="/account" class="mob-nav-link">
-      <span class="mob-nav-icon"><i data-lucide="credit-card"></i></span>
-      Accounts
-    </a>
-    <a href="/transfers" class="mob-nav-link">
-      <span class="mob-nav-icon"><i data-lucide="arrow-right-left"></i></span>
-      Transactions
-    </a>
-    <a href="/support" class="mob-nav-link">
-      <span class="mob-nav-icon"><i data-lucide="headphones"></i></span>
-      Support
-    </a>
+    <a href="/dashboard" class="mob-nav-link"><span class="mob-nav-icon"><i data-lucide="home"></i></span>Home</a>
+    <a href="/account" class="mob-nav-link"><span class="mob-nav-icon"><i data-lucide="credit-card"></i></span>Accounts</a>
+    <a href="/transfers" class="mob-nav-link"><span class="mob-nav-icon"><i data-lucide="arrow-right-left"></i></span>Transactions</a>
+    <a href="/support" class="mob-nav-link"><span class="mob-nav-icon"><i data-lucide="headphones"></i></span>Support</a>
   </nav>
 
   <script>
@@ -287,7 +316,7 @@
     }
 
     function openSendModal(coin, maxBalance) {
-      currentCoin = coin;
+      currentCoin = coin.toLowerCase(); // Backend expects 'btc' or 'eth'
       currentMaxBalance = maxBalance;
 
       document.getElementById('sendModalTitle').innerText = 'Send ' + coin;
@@ -327,12 +356,11 @@
       document.getElementById('hiddenAmount').value = amount;
 
       // Populate Review UI
-      document.getElementById('rvCurrency').innerText = currentCoin;
+      document.getElementById('rvCurrency').innerText = currentCoin.toUpperCase();
       document.getElementById('rvAddress').innerText = address.substring(0, 10) + '...' + address.substring(address.length - 8);
-      document.getElementById('rvAmount').innerText = amount.toFixed(8) + ' ' + currentCoin;
+      document.getElementById('rvAmount').innerText = amount.toFixed(8) + ' ' + currentCoin.toUpperCase();
 
       closeSendModal();
-
       setTimeout(() => {
         document.getElementById('reviewOverlay').classList.add('open');
         setTimeout(() => document.getElementById('reviewSheet').classList.add('open'), 10);
@@ -350,7 +378,7 @@
       lucide.createIcons();
       btn.style.opacity = '0.8';
       btn.style.pointerEvents = 'none';
-
+      
       setTimeout(() => {
         closeReviewModal();
         
@@ -358,7 +386,7 @@
           const amount = parseFloat(document.getElementById('hiddenAmount').value);
           const address = document.getElementById('hiddenAddress').value;
           
-          document.getElementById('successAmount').innerText = amount.toFixed(8) + ' ' + currentCoin;
+          document.getElementById('successAmount').innerText = amount.toFixed(8) + ' ' + currentCoin.toUpperCase();
           document.getElementById('successAddress').innerText = 'To: ' + address;
           
           document.getElementById('successScreen').classList.add('show');
@@ -368,6 +396,38 @@
           
         }, 300); 
       }, 2000);
+    }
+
+    // ADVANCED PWA INSTALL LOGIC (APPLE BYPASS)
+    let deferredPrompt;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+    if (!isStandalone) {
+      if (isIOS) {
+        document.querySelectorAll('.pwa-install-btn').forEach(btn => { btn.style.display = 'flex'; });
+      } else {
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+          document.querySelectorAll('.pwa-install-btn').forEach(btn => { btn.style.display = 'flex'; });
+        });
+      }
+    }
+
+    function triggerInstall() {
+      if (isIOS) {
+        document.getElementById('iosModalOverlay').classList.add('open');
+        setTimeout(() => document.getElementById('iosModalSheet').classList.add('open'), 10);
+      } else if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => { deferredPrompt = null; });
+      }
+    }
+
+    function closeIOSModal() {
+      document.getElementById('iosModalSheet').classList.remove('open');
+      setTimeout(() => document.getElementById('iosModalOverlay').classList.remove('open'), 300);
     }
   </script>
 
