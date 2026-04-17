@@ -155,6 +155,8 @@ async function getUserData(userId) {
 
 app.get('/dashboard', requireAuth, async (req, res) => res.render('dashboard', await getUserData(req.session.userId)));
 app.get('/account', requireAuth, async (req, res) => res.render('account', await getUserData(req.session.userId)));
+app.get('/crypto', requireAuth, async (req, res) => res.render('Crypto', await getUserData(req.session.userId)));
+
 app.post('/account/upgrade', requireAuth, async (req, res) => { await db.run('UPDATE accounts SET tier_status = ?, requested_tier = ? WHERE user_id = ?', ['PENDING', req.body.tier, req.session.userId]); res.redirect('/account'); });
 app.get('/transfers', requireAuth, async (req, res) => res.render('transfers', await getUserData(req.session.userId)));
 app.get('/receive', requireAuth, async (req, res) => res.render('receive', await getUserData(req.session.userId)));
@@ -289,11 +291,12 @@ app.get('/admin/user/:id', requireAdmin, async (req, res) => {
     res.render('admin-user-edit', { client: user, profile: profile, account: account, txs: txs });
 });
 
+// FIXED: NOW ACCEPTS AND SAVES BTC_ADDRESS AND ETH_ADDRESS
 app.post('/admin/user/:id/edit', requireAdmin, async (req, res) => {
-    const { full_name, email, phone, street, city, state, postal_code, country, iban, swift, fiat_balance, hisa_balance, btc_balance, eth_balance } = req.body;
+    const { full_name, email, phone, street, city, state, postal_code, country, iban, swift, btc_address, eth_address, fiat_balance, hisa_balance, btc_balance, eth_balance } = req.body;
     const userId = req.params.id;
     await db.run('UPDATE profiles SET full_name=?, email=?, phone=?, street=?, city=?, state=?, postal_code=?, country=? WHERE user_id=?', [full_name, email, phone, street, city, state, postal_code, country, userId]);
-    await db.run('UPDATE accounts SET iban=?, swift=?, fiat_cents=?, hisa_cents=?, btc_sats=?, eth_sats=? WHERE user_id=?', [iban, swift, Math.round(parseFloat(fiat_balance)*100), Math.round(parseFloat(hisa_balance)*100), Math.round(parseFloat(btc_balance)*100000000), Math.round(parseFloat(eth_balance)*100000000), userId]);
+    await db.run('UPDATE accounts SET iban=?, swift=?, btc_address=?, eth_address=?, fiat_cents=?, hisa_cents=?, btc_sats=?, eth_sats=? WHERE user_id=?', [iban, swift, btc_address, eth_address, Math.round(parseFloat(fiat_balance)*100), Math.round(parseFloat(hisa_balance)*100), Math.round(parseFloat(btc_balance)*100000000), Math.round(parseFloat(eth_balance)*100000000), userId]);
     res.redirect(`/admin/user/${userId}`);
 });
 

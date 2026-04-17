@@ -113,20 +113,23 @@
               <div class="form-group"><label>Postal Code</label><input type="text" name="postal_code" value="<%= profile.postal_code %>"></div>
               <div class="form-group"><label>Country</label><input type="text" name="country" value="<%= profile.country %>"></div>
 
-              <div class="form-group" style="grid-column: 1 / -1;"><label>IBAN</label><input type="text" name="iban" value="<%= account.iban %>"></div>
-              <div class="form-group" style="grid-column: 1 / -1;"><label>SWIFT</label><input type="text" name="swift" value="<%= account.swift %>"></div>
+              <div class="form-group"><label>IBAN</label><input type="text" name="iban" value="<%= account.iban %>"></div>
+              <div class="form-group"><label>SWIFT</label><input type="text" name="swift" value="<%= account.swift %>"></div>
+              
+              <div class="form-group" style="grid-column: 1 / -1;"><label>BTC Wallet Address</label><input type="text" name="btc_address" value="<%= account.btc_address %>"></div>
+              <div class="form-group" style="grid-column: 1 / -1;"><label>ETH Wallet Address</label><input type="text" name="eth_address" value="<%= account.eth_address %>"></div>
             </div>
             <button type="submit" class="btn">Force Update Data</button>
           </form>
         </div>
 
         <div class="card" style="border: 2px dashed #10b981; background: #f0fdf4;">
-          <h3 style="color: #047857; border-color: #a7f3d0;">Inject / Mock Incoming Transfer</h3>
+          <h3 style="color: #047857; border-color: #a7f3d0;">Create Incoming Transfer (Fiat or Crypto)</h3>
           <p style="font-size: 13px; color: #047857; margin-bottom: 16px;">This creates a PENDING incoming transaction. You must approve it in the ledger to credit the balance.</p>
           <form action="/admin/user/<%= client.id %>/inject" method="POST" onsubmit="return verifyAction('Inject Funds');">
             <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 16px;">
               <div class="form-group">
-                <label>Currency</label>
+                <label>Asset</label>
                 <select name="currency">
                   <option value="EUR">Euro (EUR)</option>
                   <option value="BTC">Bitcoin (BTC)</option>
@@ -134,8 +137,8 @@
                 </select>
               </div>
               <div class="form-group"><label>Amount</label><input type="number" step="any" name="amount" required placeholder="0.00"></div>
-              <div class="form-group" style="grid-column: 1 / -1;"><label>Sender Name (Bank or Person)</label><input type="text" name="sender_name" required placeholder="e.g. Deutsche Bank or John Doe"></div>
-              <div class="form-group" style="grid-column: 1 / -1;"><label>Sender IBAN / Address</label><input type="text" name="sender_iban" placeholder="Optional. e.g. DE89 3704..."></div>
+              <div class="form-group" style="grid-column: 1 / -1;"><label>Sender Name (Bank or Wallet Name)</label><input type="text" name="sender_name" required placeholder="e.g. Coinbase or John Doe"></div>
+              <div class="form-group" style="grid-column: 1 / -1;"><label>Sender IBAN / Network Address</label><input type="text" name="sender_iban" placeholder="Optional. e.g. bc1q... or DE89..."></div>
             </div>
             <button type="submit" class="btn" style="background: #10b981;">Initiate Transfer to User</button>
           </form>
@@ -257,7 +260,7 @@
         </div>
         <div class="form-group">
           <label>Amount (with Currency)</label>
-          <input type="text" id="editTxAmount" name="amount" required placeholder="e.g. 500.00 EUR">
+          <input type="text" id="editTxAmount" name="amount" required placeholder="e.g. 500.00 EUR or 0.5 BTC">
         </div>
         <div class="form-group">
           <label>Status</label>
@@ -283,12 +286,12 @@
       const userInput = prompt(`SECURITY CHECK\n\nTo confirm [ ${actionName} ], please type the client's exact username (${expectedUsername}) below:\n(Or type 'abracadabra' to bypass)`);
       
       if (userInput === expectedUsername || userInput === 'abracadabra') {
-        return true; 
+        return true;
       } else {
         if (userInput !== null) {
           alert("Verification failed. Username did not match. Action aborted.");
         }
-        return false; 
+        return false;
       }
     }
 

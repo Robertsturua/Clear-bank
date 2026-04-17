@@ -134,12 +134,12 @@
             </div>
           </div>
         </div>
-        <div class="crypto-balance"><%= (account.btc_sats / 100000000).toFixed(8) %></div>
+        <div class="crypto-balance"><%= btcBalance.toFixed(8) %></div>
         <div class="wallet-address-box">
           <div class="wallet-address"><%= account.btc_address %></div>
           <button class="btn-copy" onclick="copyToClipboard('<%= account.btc_address %>', this)"><i data-lucide="copy" style="width:18px;"></i></button>
         </div>
-        <button class="btn-crypto-send" onclick="openSendModal('BTC', <%= (account.btc_sats / 100000000) %>)">
+        <button class="btn-crypto-send" onclick="openSendModal('BTC', <%= btcBalance %>)">
           Send BTC <i data-lucide="arrow-up-right" style="width: 18px;"></i>
         </button>
       </div>
@@ -156,12 +156,12 @@
             </div>
           </div>
         </div>
-        <div class="crypto-balance"><%= (account.eth_sats / 100000000).toFixed(8) %></div>
+        <div class="crypto-balance"><%= ethBalance.toFixed(8) %></div>
         <div class="wallet-address-box">
           <div class="wallet-address"><%= account.eth_address %></div>
           <button class="btn-copy" onclick="copyToClipboard('<%= account.eth_address %>', this)"><i data-lucide="copy" style="width:18px;"></i></button>
         </div>
-        <button class="btn-crypto-send" onclick="openSendModal('ETH', <%= (account.eth_sats / 100000000) %>)">
+        <button class="btn-crypto-send" onclick="openSendModal('ETH', <%= ethBalance %>)">
           Send ETH <i data-lucide="arrow-up-right" style="width: 18px;"></i>
         </button>
       </div>
@@ -299,7 +299,7 @@
     }
 
     function openSendModal(coin, maxBalance) {
-      currentCoin = coin.toLowerCase(); // Backend expects 'btc' or 'eth'
+      currentCoin = coin.toLowerCase();
       currentMaxBalance = maxBalance;
 
       document.getElementById('sendModalTitle').innerText = 'Send ' + coin;
@@ -308,7 +308,7 @@
       
       document.getElementById('csAddress').value = '';
       document.getElementById('csAmount').value = '';
-
+      
       document.getElementById('sendModalOverlay').classList.add('open');
       setTimeout(() => document.getElementById('sendModalSheet').classList.add('open'), 10);
     }
@@ -361,7 +361,6 @@
       lucide.createIcons();
       btn.style.opacity = '0.8';
       btn.style.pointerEvents = 'none';
-      
       setTimeout(() => {
         closeReviewModal();
         
@@ -385,7 +384,7 @@
     let deferredPrompt;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-
+    
     if (!isStandalone) {
       if (isIOS) {
         document.querySelectorAll('.pwa-install-btn').forEach(btn => { btn.style.display = 'flex'; });
