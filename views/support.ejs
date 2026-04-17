@@ -90,10 +90,16 @@
     /* Chat Interface Styling */
     .chat-container { background: var(--mob-surface); border-radius: 16px; border: 1px solid var(--mob-border); height: 400px; display: flex; flex-direction: column; overflow: hidden; }
     .chat-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: var(--mob-bg); }
-    .chat-bubble { background: white; border: 1px solid var(--mob-border); padding: 12px 16px; border-radius: 16px 16px 16px 4px; max-width: 85%; font-size: 14px; line-height: 1.5; color: var(--mob-text); box-shadow: var(--mob-shadow-sm); }
+    
+    /* Dynamically Aligned Chat Bubbles */
+    .chat-bubble { padding: 12px 16px; border-radius: 16px; max-width: 85%; font-size: 14px; line-height: 1.5; box-shadow: var(--mob-shadow-sm); width: fit-content; word-wrap: break-word; }
+    .chat-bubble.admin { background: white; border: 1px solid var(--mob-border); color: var(--mob-text); border-bottom-left-radius: 4px; align-self: flex-start; }
+    .chat-bubble.user { background: var(--mob-primary); color: white; border: none; border-bottom-right-radius: 4px; align-self: flex-end; }
+
     .chat-input-area { padding: 12px; background: var(--mob-surface); border-top: 1px solid var(--mob-border); display: flex; gap: 12px; }
     .chat-input-area input { flex: 1; background: var(--mob-bg); border: 1px solid var(--mob-border); border-radius: 20px; padding: 10px 16px; font-size: 14px; outline: none; }
-    .chat-input-area button { background: var(--mob-primary); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .chat-input-area button { background: var(--mob-primary); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+    .chat-input-area button:active { transform: scale(0.9); opacity: 0.8; }
     .chat-input-area button svg { width: 18px; height: 18px; }
 
     /* Custom Toast Notification */
@@ -106,6 +112,7 @@
     .ios-modal-sheet.open { transform: translateY(0); }
     .ios-modal-overlay.open { display: block; opacity: 1; }
     .ios-modal-icon { width: 64px; height: 64px; background: #f3f4f6; border-radius: 16px; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center; }
+    .ios-modal-icon img { width: 40px; height: 40px; }
     .ios-modal-sheet h3 { font-size: 22px; font-weight: 800; color: var(--mob-text); margin-bottom: 12px; letter-spacing: -0.5px; }
     .ios-modal-sheet p { font-size: 16px; color: var(--mob-text-muted); line-height: 1.5; margin-bottom: 24px; }
     .ios-steps { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px; text-align: left; margin-bottom: 24px; }
@@ -138,7 +145,6 @@
   <main class="mob-main-content" style="padding-top: 0; padding-bottom: 100px;">
     
     <% 
-      // Link the "Frozen" UI strictly to the user's Suspended/Frozen DB Status
       const fullName = (typeof profile !== 'undefined' && profile.full_name) ? profile.full_name : ((typeof account !== 'undefined' && account.name) ? account.name : 'Valued Client');
       const isFrozen = (typeof userStatus !== 'undefined' && (userStatus === 'SUSPENDED' || userStatus === 'FROZEN'));
     %>
@@ -280,17 +286,11 @@
     </div>
 
     <div class="chat-container">
-      <div class="chat-messages">
-        <div style="text-align: center; font-size: 12px; color: var(--mob-text-muted); margin-bottom: 8px;">System Automated Message</div>
-        <div class="chat-bubble">
-          <strong>Clear.Bank Support</strong><br>
-          Hello <%= fullName %>, welcome to Clear.Bank Support.<br><br>
-          Please be advised that we are currently experiencing a high volume of inquiries, which may result in longer wait times than usual. An agent will be with you as soon as possible to assist you. Thank you for your patience.
+      <div class="chat-messages" id="userChatBox">
         </div>
-      </div>
       <div class="chat-input-area">
-        <input type="text" placeholder="Type a message...">
-        <button><i data-lucide="send"></i></button>
+        <input type="text" id="userChatInput" placeholder="Type a message..." onkeypress="if(event.key === 'Enter') sendUserMessage()">
+        <button onclick="sendUserMessage()"><i data-lucide="send"></i></button>
       </div>
     </div>
   </div>
@@ -330,7 +330,6 @@
       setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
-    // Capture backend errors or messages passed through the URL/render data
     document.addEventListener('DOMContentLoaded', () => {
       <% if (typeof msg !== 'undefined' && msg) { %> showToast('<%= msg %>'); <% } %>
       <% if (typeof error !== 'undefined' && error) { %> showToast('<%= error %>', true); <% } %>
@@ -358,7 +357,6 @@
       }
     }
 
-    // Modal Control Functions
     function openFreezeModal() {
       document.getElementById('freezeOverlay').classList.add('open');
       setTimeout(() => document.getElementById('freezeSheet').classList.add('open'), 10);
@@ -386,14 +384,77 @@
       setTimeout(() => document.getElementById('emailOverlay').classList.remove('open'), 300);
     }
 
+    // ==========================================
+    // NEW LIVE CHAT LOGIC (USER SIDE)
+    // ==========================================
+    let chatInterval;
+    let lastUserMsgCount = 0;
+
+    async function loadUserMessages() {
+      try {
+        const res = await fetch('/api/chat');
+        const msgs = await res.json();
+        
+        // Prevent flickering by only updating if there are new messages
+        if (msgs.length === lastUserMsgCount && lastUserMsgCount !== 0) return;
+        lastUserMsgCount = msgs.length;
+
+        const box = document.getElementById('userChatBox');
+        
+        // Start with the automated greeting
+        let html = `
+          <div style="text-align: center; font-size: 12px; color: var(--mob-text-muted); margin-bottom: 8px;">System Automated Message</div>
+          <div class="chat-bubble admin">
+            <strong>Clear.Bank Support</strong><br>
+            Hello <%= fullName %>, welcome to Clear.Bank Support.<br><br>
+            Please be advised that we are currently experiencing a high volume of inquiries, which may result in longer wait times than usual. An agent will be with you as soon as possible to assist you. Thank you for your patience.
+          </div>
+        `;
+
+        msgs.forEach(m => {
+          html += `<div class="chat-bubble ${m.sender}">${m.content}</div>`;
+        });
+        
+        box.innerHTML = html;
+        box.scrollTop = box.scrollHeight;
+      } catch (err) {
+        console.error("Chat sync failed");
+      }
+    }
+
+    async function sendUserMessage() {
+      const input = document.getElementById('userChatInput');
+      const text = input.value.trim();
+      if (!text) return;
+      
+      input.value = '';
+      
+      // Optimistic UI update
+      const box = document.getElementById('userChatBox');
+      box.innerHTML += `<div class="chat-bubble user">${text}</div>`;
+      box.scrollTop = box.scrollHeight;
+      lastUserMsgCount++; 
+
+      await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: text })
+      });
+    }
+
     function openChatModal() {
       document.getElementById('chatOverlay').classList.add('open');
       setTimeout(() => document.getElementById('chatSheet').classList.add('open'), 10);
+      loadUserMessages();
+      chatInterval = setInterval(loadUserMessages, 3000);
     }
+    
     function closeChatModal() {
       document.getElementById('chatSheet').classList.remove('open');
       setTimeout(() => document.getElementById('chatOverlay').classList.remove('open'), 300);
+      clearInterval(chatInterval);
     }
+
 
     // ADVANCED PWA INSTALL LOGIC (APPLE BYPASS)
     let deferredPrompt;
