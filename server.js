@@ -419,7 +419,7 @@ app.get('/admin/api/chat/:userId', requireAdmin, async (req, res) => { res.json(
 app.post('/admin/api/chat/:userId', requireAdmin, async (req, res) => { if (req.body.content.trim()) await db.run('INSERT INTO messages (user_id, sender, content) VALUES (?, ?, ?)', [req.params.userId, 'admin', req.body.content]); res.json({ success: true }); });
 
 // ==========================================
-// START SERVER (Fixed for Railway binding)
+// START SERVER (Strict IPv4 Binding for Railway)
 // ==========================================
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 SERVER LIVE on port ${PORT}`);
