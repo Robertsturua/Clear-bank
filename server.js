@@ -16,13 +16,22 @@ app.use(express.json());
 app.use(express.static('public')); 
 
 // ==========================================
+// BULLETPROOF RAILWAY DETECTION
+// ==========================================
+const isRailway = process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_ENVIRONMENT_NAME || process.env.RAILWAY_PROJECT_ID;
+const dataDir = isRailway ? '/data' : __dirname;
+
+// ==========================================
 // SECURE PRODUCTION SESSION STORAGE
 // ==========================================
 const SQLiteStore = require('connect-sqlite3')(session);
-const sessionDir = process.env.RAILWAY_ENVIRONMENT ? '/data' : '.';
 
 app.use(session({ 
-    store: new SQLiteStore({ dir: sessionDir, db: 'sessions.db' }),
+    store: new SQLiteStore({ 
+        dir: dataDir, 
+        db: 'sessions.db',
+        concurrentDB: true // Prevents database locking errors
+    }),
     secret: 'super-secret-bank-key', 
     resave: false, 
     saveUninitialized: false 
@@ -33,9 +42,8 @@ app.use(session({
 // ==========================================
 let db;
 async function initDB() {
-    const dbPath = process.env.RAILWAY_ENVIRONMENT ? '/data/shmuper.db' : './shmuper.db';
-    
-    db = await open({ filename: dbPath, driver: sqlite3.Database });
+    // Dynamically routes to Railway volume or local folder
+    db = await open({ filename: path.join(dataDir, 'shmuper.db'), driver: sqlite3.Database });
     
     await db.exec(`
         CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, initial_password TEXT, is_admin INTEGER DEFAULT 0, status TEXT DEFAULT 'PENDING');
@@ -218,14 +226,11 @@ app.post('/api/chat', requireAuth, async (req, res) => {
 });
 
 app.get('/profile', requireAuth, async (req, res) => { const data = await getUserData(req.session.userId); res.render('profile', { user: data, profile: data.profile, msg: req.query.msg }); });
-
-// FIXED: PROFILE UPDATE NOW SAVES DOB
 app.post('/profile', requireAuth, async (req, res) => {
     const { full_name, email, phone, dob, street, city, state, postal_code, country } = req.body;
     await db.run('UPDATE profiles SET full_name=?, email=?, phone=?, dob=?, street=?, city=?, state=?, postal_code=?, country=? WHERE user_id=?', [full_name, email, phone, dob, street, city, state, postal_code, country, req.session.userId]);
     res.redirect('/profile?msg=Profile Updated');
 });
-
 app.post('/profile/password', requireAuth, async (req, res) => {
     const current_password = req.body.current_password.replace(/\s/g, '');
     const new_password = req.body.new_password.replace(/\s/g, '');
@@ -310,7 +315,6 @@ app.get('/admin/user/:id', requireAdmin, async (req, res) => {
     res.render('admin-user-edit', { client: user, profile: profile, account: account, txs: txs });
 });
 
-// FIXED: ADMIN EDIT NOW SAVES DOB
 app.post('/admin/user/:id/edit', requireAdmin, async (req, res) => {
     const { full_name, email, phone, dob, street, city, state, postal_code, country, iban, swift, btc_address, eth_address, fiat_balance, hisa_balance, btc_balance, eth_balance } = req.body;
     const userId = req.params.id;
@@ -428,4 +432,7 @@ app.get('/admin/comms', requireAdmin, async (req, res) => { res.render('admin-co
 app.get('/admin/api/chat/:userId', requireAdmin, async (req, res) => { res.json(await db.all('SELECT * FROM messages WHERE user_id = ? ORDER BY id ASC', [req.params.userId])); });
 app.post('/admin/api/chat/:userId', requireAdmin, async (req, res) => { if (req.body.content.trim()) await db.run('INSERT INTO messages (user_id, sender, content) VALUES (?, ?, ?)', [req.params.userId, 'admin', req.body.content]); res.json({ success: true }); });
 
-app.listen(PORT, () => console.log(`🚀 SERVER LIVE on http://localhost:${PORT}`));
+// ==========================================
+// RAILWAY PORT BINDING (0.0.0.0 fix)
+// ==========================================
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 SERVER LIVE on port ${PORT}`));
