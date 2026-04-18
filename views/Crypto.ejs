@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Clear.Bank | Crypto Wallets</title>
+  <title>Crypto Wallets</title>
   <link rel="manifest" href="/manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="white" />
@@ -36,8 +36,10 @@
     
     .crypto-title { font-size: 18px; font-weight: 800; margin: 0; }
     .crypto-subtitle { font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-    .crypto-balance { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 24px; position: relative; z-index: 1; word-break: break-all;}
     
+    .crypto-balance { font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; position: relative; z-index: 1; word-break: break-all;}
+    .crypto-fiat-value { font-size: 15px; font-weight: 600; color: rgba(255, 255, 255, 0.7); margin-bottom: 24px; position: relative; z-index: 1; display: flex; align-items: center; gap: 6px; }
+
     .wallet-address-box { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; backdrop-filter: blur(4px); margin-bottom: 16px; }
     .wallet-address { font-family: monospace; font-size: 13px; color: rgba(255,255,255,0.9); word-break: break-all; padding-right: 12px; }
     .btn-copy { background: transparent; border: none; color: white; cursor: pointer; padding: 4px; transition: 0.2s; }
@@ -135,6 +137,10 @@
           </div>
         </div>
         <div class="crypto-balance"><%= btcBalance.toFixed(8) %></div>
+        <div class="crypto-fiat-value" id="btc-fiat-display">
+          <i data-lucide="loader-2" style="animation: spin 1s linear infinite; width: 14px;"></i> Calculating...
+        </div>
+        
         <div class="wallet-address-box">
           <div class="wallet-address"><%= account.btc_address %></div>
           <button class="btn-copy" onclick="copyToClipboard('<%= account.btc_address %>', this)"><i data-lucide="copy" style="width:18px;"></i></button>
@@ -157,6 +163,10 @@
           </div>
         </div>
         <div class="crypto-balance"><%= ethBalance.toFixed(8) %></div>
+        <div class="crypto-fiat-value" id="eth-fiat-display">
+          <i data-lucide="loader-2" style="animation: spin 1s linear infinite; width: 14px;"></i> Calculating...
+        </div>
+
         <div class="wallet-address-box">
           <div class="wallet-address"><%= account.eth_address %></div>
           <button class="btn-copy" onclick="copyToClipboard('<%= account.eth_address %>', this)"><i data-lucide="copy" style="width:18px;"></i></button>
@@ -193,8 +203,9 @@
         <input type="number" step="any" id="csAmount" class="form-control" placeholder="0.00000000" style="font-family: 'Inter', sans-serif;" required>
         <span id="csTicker">BTC</span>
       </div>
-      <div style="font-size: 12px; color: var(--mob-text-muted); margin-top: 8px; text-align: right; font-weight: 600;" id="csMaxAmount">
-        Available: 0.00
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+        <div style="font-size: 14px; font-weight: 700; color: var(--mob-primary);" id="csFiatEquivalent">≈ €0.00</div>
+        <div style="font-size: 12px; color: var(--mob-text-muted); font-weight: 600;" id="csMaxAmount">Available: 0.00</div>
       </div>
     </div>
     
@@ -221,6 +232,10 @@
         <div class="confirm-label">Amount</div>
         <div class="confirm-value" id="rvAmount" style="font-size: 18px; color: var(--mob-primary); font-family: 'Inter', sans-serif;">0.00</div>
       </div>
+      <div class="confirm-row" style="background: var(--mob-bg); border-radius: 8px; margin-top: 8px; border: none; padding: 12px;">
+        <div class="confirm-label" style="font-size: 12px;">Est. Value</div>
+        <div class="confirm-value" id="rvFiatAmount" style="font-size: 14px; color: var(--mob-text-muted);">€0.00</div>
+      </div>
     </div>
 
     <button class="btn-submit-transfer" id="submitBtn" onclick="processCryptoTransfer()">Send Securely</button>
@@ -229,9 +244,9 @@
   <div class="ios-modal-overlay" id="iosModalOverlay" onclick="closeIOSModal()"></div>
   <div class="ios-modal-sheet" id="iosModalSheet">
     <div class="ios-modal-icon">
-      <img src="https://cdn-icons-png.flaticon.com/512/6202/6202860.png" alt="Clear.Bank" style="width: 40px; height: 40px;">
+      <img src="https://cdn-icons-png.flaticon.com/512/6202/6202860.png" alt="App Logo" style="width: 40px; height: 40px;">
     </div>
-    <h3>Install Clear.Bank App</h3>
+    <h3>Install App</h3>
     <p>Install this application on your home screen for quick and easy access when you're on the go.</p>
     <div class="ios-steps">
       <div class="ios-step">
@@ -272,6 +287,52 @@
     let currentCoin = '';
     let currentMaxBalance = 0;
 
+    // LIVE PRICE DATA TRACKER
+    let livePrices = { btc: 0, eth: 0 };
+    const rawBtcBalance = <%= btcBalance %>;
+    const rawEthBalance = <%= ethBalance %>;
+
+    async function fetchCryptoPrices() {
+      try {
+        const btcRes = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCEUR');
+        const ethRes = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=ETHEUR');
+        
+        const btcData = await btcRes.json();
+        const ethData = await ethRes.json();
+        
+        livePrices.btc = parseFloat(btcData.price);
+        livePrices.eth = parseFloat(ethData.price);
+
+        if (document.getElementById('btc-fiat-display')) {
+          document.getElementById('btc-fiat-display').innerText = `≈ €${(rawBtcBalance * livePrices.btc).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        }
+        if (document.getElementById('eth-fiat-display')) {
+          document.getElementById('eth-fiat-display').innerText = `≈ €${(rawEthBalance * livePrices.eth).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        }
+        
+        // Re-trigger the input event if a user is currently typing in the modal
+        const amountInput = document.getElementById('csAmount');
+        if(amountInput.value) {
+          amountInput.dispatchEvent(new Event('input'));
+        }
+
+      } catch (e) {
+        console.error('Could not fetch live crypto prices', e);
+      }
+    }
+
+    // Load prices immediately, then refresh every 30 seconds
+    window.addEventListener('DOMContentLoaded', fetchCryptoPrices);
+    setInterval(fetchCryptoPrices, 30000);
+
+    // DYNAMIC SEND MODAL INPUT LISTENER
+    document.getElementById('csAmount').addEventListener('input', function() {
+      const val = parseFloat(this.value) || 0;
+      const fiatVal = val * livePrices[currentCoin];
+      document.getElementById('csFiatEquivalent').innerText = `≈ €${fiatVal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    });
+
+
     function showToast(msg, isError = false) {
       const toast = document.getElementById('toast');
       toast.innerText = msg;
@@ -308,6 +369,7 @@
       
       document.getElementById('csAddress').value = '';
       document.getElementById('csAmount').value = '';
+      document.getElementById('csFiatEquivalent').innerText = `≈ €0.00`;
       
       document.getElementById('sendModalOverlay').classList.add('open');
       setTimeout(() => document.getElementById('sendModalSheet').classList.add('open'), 10);
@@ -342,6 +404,9 @@
       document.getElementById('rvCurrency').innerText = currentCoin.toUpperCase();
       document.getElementById('rvAddress').innerText = address.substring(0, 10) + '...' + address.substring(address.length - 8);
       document.getElementById('rvAmount').innerText = amount.toFixed(8) + ' ' + currentCoin.toUpperCase();
+      
+      const fiatTotal = amount * livePrices[currentCoin];
+      document.getElementById('rvFiatAmount').innerText = `≈ €${fiatTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
       closeSendModal();
       setTimeout(() => {
