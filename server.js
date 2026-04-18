@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(express.static('public')); 
 
 // ==========================================
-// STANDARD SESSION STORAGE
+// ORIGINAL, STABLE SESSION STORAGE
 // ==========================================
 app.use(session({ 
     secret: 'super-secret-bank-key', 
@@ -421,9 +421,6 @@ app.get('/admin/api/chat/:userId', requireAdmin, async (req, res) => { res.json(
 app.post('/admin/api/chat/:userId', requireAdmin, async (req, res) => { if (req.body.content.trim()) await db.run('INSERT INTO messages (user_id, sender, content) VALUES (?, ?, ?)', [req.params.userId, 'admin', req.body.content]); res.json({ success: true }); });
 
 // ==========================================
-// START SERVER (RAILWAY NETWORK FIX)
+// START SERVER
 // ==========================================
-const host = '0.0.0.0';
-app.listen(PORT, host, () => {
-    console.log(`🚀 SERVER LIVE on http://${host}:${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 SERVER LIVE on port ${PORT}`));
