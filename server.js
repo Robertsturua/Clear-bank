@@ -7,6 +7,7 @@ const { open } = require('sqlite');
 const crypto = require('crypto'); 
 
 const app = express();
+// Railway dynamically assigns a port. We catch it here.
 const PORT = process.env.PORT || 3000;
 
 app.set('view engine', 'ejs');
@@ -16,7 +17,7 @@ app.use(express.json());
 app.use(express.static('public')); 
 
 // ==========================================
-// ORIGINAL, STABLE SESSION STORAGE
+// STANDARD SESSION STORAGE
 // ==========================================
 app.use(session({ 
     secret: 'super-secret-bank-key', 
@@ -86,12 +87,9 @@ app.post('/login', async (req, res) => {
     
     const user = await db.get('SELECT * FROM users WHERE username = ?', [cleanUsername]);
     if (user && await bcrypt.compare(cleanPassword, user.password)) {
-        
-        // OFFICIAL LOCKED NOTIFICATION LOGIC
         if (user.status === 'LOCKED' && user.is_admin !== 1) {
             return res.render('login', { error: `Access Denied: Your account has been locked for security reasons. Please contact our support team at Support@clearb.org for assistance.` });
         }
-        
         req.session.userId = user.id;
         if (user.is_admin === 1) return res.redirect('/admin');
         res.redirect('/dashboard');
@@ -421,6 +419,8 @@ app.get('/admin/api/chat/:userId', requireAdmin, async (req, res) => { res.json(
 app.post('/admin/api/chat/:userId', requireAdmin, async (req, res) => { if (req.body.content.trim()) await db.run('INSERT INTO messages (user_id, sender, content) VALUES (?, ?, ?)', [req.params.userId, 'admin', req.body.content]); res.json({ success: true }); });
 
 // ==========================================
-// START SERVER
+// START SERVER (Fixed for Railway binding)
 // ==========================================
-app.listen(PORT, () => console.log(`🚀 SERVER LIVE on port ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 SERVER LIVE on port ${PORT}`);
+});
