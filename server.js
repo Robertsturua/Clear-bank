@@ -421,6 +421,6 @@ app.get('/admin/api/chat/:userId', requireAdmin, async (req, res) => { res.json(
 app.post('/admin/api/chat/:userId', requireAdmin, async (req, res) => { if (req.body.content.trim()) await db.run('INSERT INTO messages (user_id, sender, content) VALUES (?, ?, ?)', [req.params.userId, 'admin', req.body.content]); res.json({ success: true }); });
 
 // ==========================================
-// PORT BINDING (0.0.0.0 fix)
+// START SERVER (Fixed to allow IPv4 + IPv6)
 // ==========================================
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 SERVER LIVE on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 SERVER LIVE on port ${PORT}`));
