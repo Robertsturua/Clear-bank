@@ -27,7 +27,7 @@ async function initDB() {
     
     await db.exec(`
         CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, initial_password TEXT, is_admin INTEGER DEFAULT 0, status TEXT DEFAULT 'PENDING');
-        CREATE TABLE IF NOT EXISTS profiles (user_id INTEGER PRIMARY KEY, full_name TEXT, email TEXT, phone TEXT, street TEXT, city TEXT, state TEXT, postal_code TEXT, country TEXT);
+        CREATE TABLE IF NOT EXISTS profiles (user_id INTEGER PRIMARY KEY, full_name TEXT, email TEXT, phone TEXT, dob TEXT, street TEXT, city TEXT, state TEXT, postal_code TEXT, country TEXT);
         CREATE TABLE IF NOT EXISTS accounts (
             user_id INTEGER PRIMARY KEY, iban TEXT, swift TEXT, btc_address TEXT, eth_address TEXT, 
             fiat_cents INTEGER DEFAULT 0, btc_sats INTEGER DEFAULT 0, eth_sats INTEGER DEFAULT 0, hisa_cents INTEGER DEFAULT 0,
@@ -37,6 +37,8 @@ async function initDB() {
         CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, sender TEXT, content TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP);
     `);
 
+    // Failsafes to update existing databases without wiping data
+    try { await db.exec("ALTER TABLE profiles ADD COLUMN dob TEXT"); } catch (e) {}
     try { await db.exec("ALTER TABLE accounts ADD COLUMN hisa_tier TEXT DEFAULT 'Standard'"); } catch (e) {}
     try { await db.exec("ALTER TABLE accounts ADD COLUMN account_tier TEXT DEFAULT 'Basic'"); } catch (e) {}
     try { await db.exec("ALTER TABLE accounts ADD COLUMN tier_status TEXT DEFAULT 'ACTIVE'"); } catch (e) {}
@@ -86,7 +88,7 @@ app.post('/login', async (req, res) => {
 
 app.get('/register', (req, res) => res.render('register', { error: null }));
 app.post('/register', async (req, res) => {
-    const { full_name, email, phone, street, city, state, postal_code, country } = req.body;
+    const { full_name, email, phone, dob, street, city, state, postal_code, country } = req.body;
     
     // SECURITY: Remove spaces and force lowercase for username. Remove spaces from passwords.
     const cleanUsername = req.body.username.replace(/\s/g, '').toLowerCase();
@@ -101,7 +103,7 @@ app.post('/register', async (req, res) => {
     try {
         const result = await db.run('INSERT INTO users (username, password, initial_password, status) VALUES (?, ?, ?, ?)', [cleanUsername, hash, cleanPassword, 'PENDING']);
         const newId = result.lastID;
-        await db.run('INSERT INTO profiles (user_id, full_name, email, phone, street, city, state, postal_code, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [newId, full_name, email, phone, street, city, state, postal_code, country]);
+        await db.run('INSERT INTO profiles (user_id, full_name, email, phone, dob, street, city, state, postal_code, country) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [newId, full_name, email, phone, dob, street, city, state, postal_code, country]);
         
         const iban = "CLR" + Math.floor(Math.random() * 100000000000);
         const btc_address = "bc1q" + crypto.randomBytes(20).toString('hex');
