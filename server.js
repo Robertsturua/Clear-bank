@@ -16,22 +16,10 @@ app.use(express.json());
 app.use(express.static('public')); 
 
 // ==========================================
-// BULLETPROOF RAILWAY DETECTION
+// STANDARD SESSION STORAGE
+// (Safe for educational/sandbox environments)
 // ==========================================
-const isRailway = process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_ENVIRONMENT_NAME || process.env.RAILWAY_PROJECT_ID;
-const dataDir = isRailway ? '/data' : __dirname;
-
-// ==========================================
-// SECURE PRODUCTION SESSION STORAGE
-// ==========================================
-const SQLiteStore = require('connect-sqlite3')(session);
-
 app.use(session({ 
-    store: new SQLiteStore({ 
-        dir: dataDir, 
-        db: 'sessions.db',
-        concurrentDB: true // Prevents database locking errors
-    }),
     secret: 'super-secret-bank-key', 
     resave: false, 
     saveUninitialized: false 
@@ -42,8 +30,9 @@ app.use(session({
 // ==========================================
 let db;
 async function initDB() {
-    // Dynamically routes to Railway volume or local folder
-    db = await open({ filename: path.join(dataDir, 'shmuper.db'), driver: sqlite3.Database });
+    const dbPath = process.env.RAILWAY_ENVIRONMENT ? '/data/shmuper.db' : './shmuper.db';
+    
+    db = await open({ filename: dbPath, driver: sqlite3.Database });
     
     await db.exec(`
         CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, initial_password TEXT, is_admin INTEGER DEFAULT 0, status TEXT DEFAULT 'PENDING');
@@ -433,6 +422,6 @@ app.get('/admin/api/chat/:userId', requireAdmin, async (req, res) => { res.json(
 app.post('/admin/api/chat/:userId', requireAdmin, async (req, res) => { if (req.body.content.trim()) await db.run('INSERT INTO messages (user_id, sender, content) VALUES (?, ?, ?)', [req.params.userId, 'admin', req.body.content]); res.json({ success: true }); });
 
 // ==========================================
-// RAILWAY PORT BINDING (0.0.0.0 fix)
+// PORT BINDING (0.0.0.0 fix)
 // ==========================================
 app.listen(PORT, '0.0.0.0', () => console.log(`🚀 SERVER LIVE on port ${PORT}`));
