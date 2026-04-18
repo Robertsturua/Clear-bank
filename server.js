@@ -16,8 +16,7 @@ app.use(express.json());
 app.use(express.static('public')); 
 
 // ==========================================
-// STANDARD SESSION STORAGE
-// (Safe for educational/sandbox environments)
+// STANDARD SESSION STORAGE (Stable)
 // ==========================================
 app.use(session({ 
     secret: 'super-secret-bank-key', 
