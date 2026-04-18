@@ -7,14 +7,26 @@ const { open } = require('sqlite');
 const crypto = require('crypto'); 
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); 
 app.use(express.static('public')); 
-app.use(session({ secret: 'super-secret-bank-key', resave: false, saveUninitialized: false }));
+
+// ==========================================
+// SECURE PRODUCTION SESSION STORAGE
+// ==========================================
+const SQLiteStore = require('connect-sqlite3')(session);
+const sessionDir = process.env.RAILWAY_ENVIRONMENT ? '/data' : '.';
+
+app.use(session({ 
+    store: new SQLiteStore({ dir: sessionDir, db: 'sessions.db' }),
+    secret: 'super-secret-bank-key', 
+    resave: false, 
+    saveUninitialized: false 
+}));
 
 // ==========================================
 // DATABASE SETUP (SQLite)
@@ -50,7 +62,7 @@ async function initDB() {
         await db.run('INSERT INTO users (username, password, initial_password, is_admin, status) VALUES (?, ?, ?, 1, ?)', ['admin', adminHash, 'admin123', 'ACTIVE']);
         console.log("🛡️ Master Admin account created!");
     }
-    console.log("🗄️ Local Database Ready! (Clear.Bank Engine)");
+    console.log("🗄️ Local Database Ready! (Portal Engine)");
 }
 initDB();
 
@@ -73,13 +85,17 @@ app.get('/', (req, res) => res.render('index'));
 app.get('/login', (req, res) => res.render('login', { error: null }));
 
 app.post('/login', async (req, res) => {
-    // SECURITY: Remove spaces and force lowercase for username. Remove spaces from password.
     const cleanUsername = req.body.username.replace(/\s/g, '').toLowerCase();
     const cleanPassword = req.body.password.replace(/\s/g, '');
     
     const user = await db.get('SELECT * FROM users WHERE username = ?', [cleanUsername]);
     if (user && await bcrypt.compare(cleanPassword, user.password)) {
-        if (user.status === 'LOCKED' && user.is_admin !== 1) return res.render('login', { error: `Account is LOCKED. Please contact support.` });
+        
+        // OFFICIAL LOCKED NOTIFICATION LOGIC
+        if (user.status === 'LOCKED' && user.is_admin !== 1) {
+            return res.render('login', { error: `Access Denied: Your account has been locked for security reasons. Please contact our support team at Support@clearb.org for assistance.` });
+        }
+        
         req.session.userId = user.id;
         if (user.is_admin === 1) return res.redirect('/admin');
         res.redirect('/dashboard');
@@ -90,7 +106,6 @@ app.get('/register', (req, res) => res.render('register', { error: null }));
 app.post('/register', async (req, res) => {
     const { full_name, email, phone, dob, street, city, state, postal_code, country } = req.body;
     
-    // SECURITY: Remove spaces and force lowercase for username. Remove spaces from passwords.
     const cleanUsername = req.body.username.replace(/\s/g, '').toLowerCase();
     const cleanPassword = req.body.password.replace(/\s/g, '');
     const cleanConfirm = req.body.confirm_password.replace(/\s/g, '');
@@ -203,13 +218,15 @@ app.post('/api/chat', requireAuth, async (req, res) => {
 });
 
 app.get('/profile', requireAuth, async (req, res) => { const data = await getUserData(req.session.userId); res.render('profile', { user: data, profile: data.profile, msg: req.query.msg }); });
+
+// FIXED: PROFILE UPDATE NOW SAVES DOB
 app.post('/profile', requireAuth, async (req, res) => {
-    const { full_name, email, phone, street, city, state, postal_code, country } = req.body;
-    await db.run('UPDATE profiles SET full_name=?, email=?, phone=?, street=?, city=?, state=?, postal_code=?, country=? WHERE user_id=?', [full_name, email, phone, street, city, state, postal_code, country, req.session.userId]);
+    const { full_name, email, phone, dob, street, city, state, postal_code, country } = req.body;
+    await db.run('UPDATE profiles SET full_name=?, email=?, phone=?, dob=?, street=?, city=?, state=?, postal_code=?, country=? WHERE user_id=?', [full_name, email, phone, dob, street, city, state, postal_code, country, req.session.userId]);
     res.redirect('/profile?msg=Profile Updated');
 });
+
 app.post('/profile/password', requireAuth, async (req, res) => {
-    // SECURITY: Remove spaces from password updates
     const current_password = req.body.current_password.replace(/\s/g, '');
     const new_password = req.body.new_password.replace(/\s/g, '');
     const confirm_password = req.body.confirm_password.replace(/\s/g, '');
@@ -293,11 +310,11 @@ app.get('/admin/user/:id', requireAdmin, async (req, res) => {
     res.render('admin-user-edit', { client: user, profile: profile, account: account, txs: txs });
 });
 
-// FIXED: NOW ACCEPTS AND SAVES BTC_ADDRESS AND ETH_ADDRESS
+// FIXED: ADMIN EDIT NOW SAVES DOB
 app.post('/admin/user/:id/edit', requireAdmin, async (req, res) => {
-    const { full_name, email, phone, street, city, state, postal_code, country, iban, swift, btc_address, eth_address, fiat_balance, hisa_balance, btc_balance, eth_balance } = req.body;
+    const { full_name, email, phone, dob, street, city, state, postal_code, country, iban, swift, btc_address, eth_address, fiat_balance, hisa_balance, btc_balance, eth_balance } = req.body;
     const userId = req.params.id;
-    await db.run('UPDATE profiles SET full_name=?, email=?, phone=?, street=?, city=?, state=?, postal_code=?, country=? WHERE user_id=?', [full_name, email, phone, street, city, state, postal_code, country, userId]);
+    await db.run('UPDATE profiles SET full_name=?, email=?, phone=?, dob=?, street=?, city=?, state=?, postal_code=?, country=? WHERE user_id=?', [full_name, email, phone, dob, street, city, state, postal_code, country, userId]);
     await db.run('UPDATE accounts SET iban=?, swift=?, btc_address=?, eth_address=?, fiat_cents=?, hisa_cents=?, btc_sats=?, eth_sats=? WHERE user_id=?', [iban, swift, btc_address, eth_address, Math.round(parseFloat(fiat_balance)*100), Math.round(parseFloat(hisa_balance)*100), Math.round(parseFloat(btc_balance)*100000000), Math.round(parseFloat(eth_balance)*100000000), userId]);
     res.redirect(`/admin/user/${userId}`);
 });
@@ -411,4 +428,4 @@ app.get('/admin/comms', requireAdmin, async (req, res) => { res.render('admin-co
 app.get('/admin/api/chat/:userId', requireAdmin, async (req, res) => { res.json(await db.all('SELECT * FROM messages WHERE user_id = ? ORDER BY id ASC', [req.params.userId])); });
 app.post('/admin/api/chat/:userId', requireAdmin, async (req, res) => { if (req.body.content.trim()) await db.run('INSERT INTO messages (user_id, sender, content) VALUES (?, ?, ?)', [req.params.userId, 'admin', req.body.content]); res.json({ success: true }); });
 
-app.listen(PORT, () => console.log(`🚀 CLEAR.BANK LIVE on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 SERVER LIVE on http://localhost:${PORT}`));

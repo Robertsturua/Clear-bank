@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Clear.Bank | Home</title>
+  <title>Home</title>
   <link rel="manifest" href="/manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="white" />
@@ -71,6 +71,16 @@
 
   <main class="mob-main-content" style="padding-top: 0; padding-bottom: 100px;">
     
+    <% if (typeof userStatus !== 'undefined' && userStatus === 'SUSPENDED') { %>
+      <div style="background: #fef2f2; border: 1px solid #fecaca; margin: 0 20px 24px 20px; padding: 16px; border-radius: 16px; display: flex; align-items: flex-start; gap: 12px; box-shadow: var(--mob-shadow-sm);">
+        <i data-lucide="shield-alert" style="color: #ef4444; flex-shrink: 0; width: 24px; height: 24px;"></i>
+        <div>
+          <h4 style="margin: 0 0 4px 0; color: #991b1b; font-size: 15px; font-weight: 700;">Account Suspended</h4>
+          <p style="margin: 0; color: #b91c1c; font-size: 13px; line-height: 1.4;">Your account is currently suspended and outgoing transfers are disabled. Please contact Support@clearb.org.</p>
+        </div>
+      </div>
+    <% } %>
+
     <div style="margin-top: 20px; margin-bottom: 40px; text-align: center;">
       <div style="font-size: 14px; font-weight: 600; color: var(--mob-text-muted);">Total Balance · EUR</div>
       <div style="font-size: 56px; font-weight: 800; letter-spacing: -1px; margin-bottom: 16px; color: var(--mob-text);">
@@ -84,10 +94,19 @@
         <div class="mob-action-circle"><i data-lucide="plus"></i></div>
         <span class="mob-action-label">Add money</span>
       </a>
-      <a href="/send" class="mob-action-item">
-        <div class="mob-action-circle"><i data-lucide="arrow-right-left"></i></div>
-        <span class="mob-action-label">Make a payment</span>
-      </a>
+      
+      <% if (typeof userStatus !== 'undefined' && userStatus === 'SUSPENDED') { %>
+        <a href="#" onclick="alert('Action disabled: Your account is currently suspended.'); return false;" class="mob-action-item" style="opacity: 0.5;">
+          <div class="mob-action-circle" style="color: var(--mob-text-muted); border-color: var(--mob-border);"><i data-lucide="arrow-right-left"></i></div>
+          <span class="mob-action-label" style="color: var(--mob-text-muted);">Make a payment</span>
+        </a>
+      <% } else { %>
+        <a href="/send" class="mob-action-item">
+          <div class="mob-action-circle"><i data-lucide="arrow-right-left"></i></div>
+          <span class="mob-action-label">Make a payment</span>
+        </a>
+      <% } %>
+
       <a href="/account" class="mob-action-item">
         <div class="mob-action-circle"><i data-lucide="more-horizontal"></i></div>
         <span class="mob-action-label">Details</span>
@@ -140,9 +159,9 @@
   <div class="ios-modal-overlay" id="iosModalOverlay" onclick="closeIOSModal()"></div>
   <div class="ios-modal-sheet" id="iosModalSheet">
     <div class="ios-modal-icon">
-      <img src="https://cdn-icons-png.flaticon.com/512/6202/6202860.png" alt="ClearBank Logo" style="width: 40px; height: 40px;">
+      <img src="https://cdn-icons-png.flaticon.com/512/6202/6202860.png" alt="App Logo" style="width: 40px; height: 40px;">
     </div>
-    <h3>Install Clear.Bank App</h3>
+    <h3>Install App</h3>
     <p>Install this application on your home screen for quick and easy access when you're on the go.</p>
     <div class="ios-steps">
       <div class="ios-step">

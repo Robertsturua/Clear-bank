@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Clear.Bank | Savings Vault</title>
+  <title>Savings Vault</title>
   <link rel="manifest" href="/manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="white" />
@@ -50,16 +50,35 @@
     .status-alert h4 { margin: 0 0 4px 0; font-size: 15px; font-weight: 700; }
     .status-alert p { margin: 0; font-size: 13px; opacity: 0.9; line-height: 1.4; }
 
-    /* Active Savings View */
-    .savings-card { background: var(--mob-primary); color: white; border-radius: var(--mob-radius-lg); padding: 32px 24px; margin: 10px 20px 32px 20px; text-align: center; position: relative; overflow: hidden; box-shadow: var(--mob-shadow-md); }
-    .savings-card::after { content: ''; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(0, 229, 196, 0.2) 0%, transparent 70%); pointer-events: none; }
-    .savings-card.premium { background: linear-gradient(135deg, #0f172a 0%, #000000 100%); border: 1px solid #d97706; }
-    .savings-card.premium::after { background: radial-gradient(circle, rgba(217, 119, 6, 0.2) 0%, transparent 70%); }
+    /* =========================================
+       BEAUTIFUL SAVINGS CARDS (STANDARD & PREMIUM)
+       ========================================= */
+    .vault-card { border-radius: 24px; padding: 28px 24px; margin: 10px 20px 32px 20px; color: white; position: relative; overflow: hidden; box-shadow: 0 15px 30px rgba(0,0,0,0.1); transition: all 0.4s ease; }
+    
+    /* STANDARD TIER LOOK */
+    .vault-card.standard { background: linear-gradient(135deg, var(--mob-primary) 0%, #0f172a 100%); border: 1px solid rgba(255,255,255,0.1); }
+    .standard .vault-badge { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); }
+    .standard .apy-text { color: var(--mob-accent); }
 
-    .savings-label { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
-    .savings-amount { font-size: 48px; font-weight: 800; letter-spacing: -1px; margin: 0 0 16px 0; }
-    .savings-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; backdrop-filter: blur(4px); }
-    .savings-card.premium .savings-badge { color: #fcd34d; border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.1); }
+    /* PREMIUM TIER LOOK (LUXURY) */
+    .vault-card.premium { background: linear-gradient(135deg, #111827 0%, #000000 100%); border: 1px solid #f59e0b; box-shadow: 0 15px 30px rgba(245, 158, 11, 0.15); }
+    .premium .vault-badge { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); }
+    .premium .apy-text { color: #fbbf24; text-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
+    
+    /* Ambient Glow inside Premium Card */
+    .premium::before { content: ''; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, rgba(0,0,0,0) 70%); border-radius: 50%; pointer-events: none; }
+
+    .vault-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 32px; position: relative; z-index: 1; }
+    .vault-icon { width: 48px; height: 48px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); backdrop-filter: blur(5px); }
+    .vault-badge { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 4px; }
+    
+    .vault-title { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.8); margin: 0 0 4px 0; }
+    .vault-balance { font-size: 42px; font-weight: 800; letter-spacing: -1.5px; margin: 0; position: relative; z-index: 1; display: flex; align-items: center; gap: 4px; }
+    .vault-currency { font-size: 24px; opacity: 0.8; margin-top: 6px; }
+
+    .apy-box { margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; }
+    .apy-label { font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 500; }
+    .apy-text { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
 
     /* Transfer Box */
     .transfer-box { background: var(--mob-surface); border: 1px solid var(--mob-border); border-radius: 20px; padding: 24px; margin: 0 20px 24px 20px; box-shadow: var(--mob-shadow-sm); }
@@ -186,15 +205,33 @@
         </div>
       <% } %>
 
-      <div class="savings-card <%= account.hisa_tier === 'Premium' ? 'premium' : '' %>">
-        <div class="savings-label">Total Savings</div>
-        <div class="savings-amount">€<%= hisaBalance.toLocaleString('en-US', {minimumFractionDigits: 2}) %></div>
-        <div class="savings-badge">
-          <% if (account.hisa_tier === 'Premium') { %>
-            <i data-lucide="crown" style="width: 14px;"></i> Premium Yield Active
-          <% } else { %>
-            <i data-lucide="trending-up" style="width: 14px;"></i> Standard Yield Active
-          <% } %>
+      <% const isPremium = account.hisa_tier === 'Premium'; %>
+      
+      <div class="vault-card <%= isPremium ? 'premium' : 'standard' %>">
+        <div class="vault-card-header">
+          <div class="vault-icon">
+            <i data-lucide="<%= isPremium ? 'crown' : 'piggy-bank' %>" style="color: white; width: 28px; height: 28px;"></i>
+          </div>
+          <div class="vault-badge">
+            <% if (isPremium) { %>
+              <i data-lucide="star" style="width: 12px; height: 12px; fill: currentColor;"></i> VIP TIER
+            <% } else { %>
+              STANDARD
+            <% } %>
+          </div>
+        </div>
+        
+        <p class="vault-title">Available Balance</p>
+        <h2 class="vault-balance">
+          <span class="vault-currency">€</span><%= hisaBalance.toLocaleString('en-US', {minimumFractionDigits: 2}) %>
+        </h2>
+        
+        <div class="apy-box">
+          <span class="apy-label">Current Interest Rate</span>
+          <span class="apy-text">
+            <i data-lucide="trending-up" style="width: 18px;"></i> 
+            <%= isPremium ? '5.25%' : '3.00%' %> APY
+          </span>
         </div>
       </div>
 
@@ -238,9 +275,9 @@
   <div class="ios-modal-overlay" id="iosModalOverlay" onclick="closeIOSModal()"></div>
   <div class="ios-modal-sheet" id="iosModalSheet">
     <div class="ios-modal-icon">
-      <img src="https://cdn-icons-png.flaticon.com/512/6202/6202860.png" alt="Clear.Bank" style="width: 40px; height: 40px;">
+      <img src="https://cdn-icons-png.flaticon.com/512/6202/6202860.png" alt="App Logo" style="width: 40px; height: 40px;">
     </div>
-    <h3>Install Clear.Bank App</h3>
+    <h3>Install App</h3>
     <p>Install this application on your home screen for quick and easy access when you're on the go.</p>
     <div class="ios-steps">
       <div class="ios-step">
@@ -278,15 +315,14 @@
 
   <script>
     lucide.createIcons();
-    const fiatBal = <%= fiatBalance %>;
-    const hisaBal = <%= hisaBalance %>;
+    const fiatBal = <%= typeof fiatBalance !== 'undefined' ? fiatBalance : 0 %>;
+    const hisaBal = <%= typeof hisaBalance !== 'undefined' ? hisaBalance : 0 %>;
     
     function updateRoute() {
       const route = document.getElementById('routeSelect').value;
       const from = document.getElementById('from_account');
       const to = document.getElementById('to_account');
       const avail = document.getElementById('availableText');
-
       if (route === 'to_hisa') {
         from.value = 'main';
         to.value = 'hisa';
@@ -302,7 +338,6 @@
     let deferredPrompt;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-
     if (!isStandalone) {
       if (isIOS) {
         document.querySelectorAll('.pwa-install-btn').forEach(btn => { btn.style.display = 'flex'; });
