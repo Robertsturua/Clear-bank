@@ -1,18 +1,21 @@
-const cacheName = 'clearbank-v1';
+const CACHE_NAME = 'clearbank-v1';
 
-// Chrome requires a fetch event listener to trigger the Install prompt
-self.addEventListener('fetch', (event) => {
-  // We just let the browser do its normal network request
-  event.respondWith(fetch(event.request).catch(() => {
-    // Optional: Return offline fallback page here later
-  }));
-});
-
+// Install the service worker
 self.addEventListener('install', (event) => {
-  self.skipWaiting();
-  console.log('Clear.Bank Service Worker Installed');
+    self.skipWaiting();
 });
 
+// Activate and claim clients
 self.addEventListener('activate', (event) => {
-  event.waitUntil(clients.claim());
+    event.waitUntil(clients.claim());
+});
+
+// Chrome strictly REQUIRES a fetch handler to trigger the PWA install prompt!
+self.addEventListener('fetch', (event) => {
+    // This simple network-first setup satisfies Chrome's requirement
+    event.respondWith(
+        fetch(event.request).catch(() => {
+            return new Response("You are currently offline.");
+        })
+    );
 });
