@@ -390,7 +390,6 @@
   <script>
     function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
 
-    // Completely softened reviews tailored for app performance, security, and UI experience
     const allReviews = [
       { name: "Sarah J.", gender: "women", id: 44, quote: "The application speed is unbelievable. Everything loads instantly, and the overall performance is top-notch." },
       { name: "Marcus T.", gender: "men", id: 32, quote: "Finally, an app that gives me total control over my profile. The advanced security features make me feel completely safe using it daily." },
@@ -432,34 +431,29 @@
     }
 
     // ==========================================
-    // ADVANCED PWA INSTALL LOGIC (APPLE BYPASS)
+    // ADVANCED PWA INSTALL LOGIC (FAILSAFE UX)
     // ==========================================
     let deferredPrompt;
     
     // Detect if the user is on an iPhone/iPad
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    
     // Detect if the app is ALREADY installed (running in standalone mode)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
     // If the app is NOT already installed...
     if (!isStandalone) {
-      if (isIOS) {
-        // If it's an iPhone, we force the buttons to show up, 
-        // but clicking them opens the instruction modal instead of a 1-click install.
-        document.querySelectorAll('.pwa-install-btn').forEach(btn => {
-          btn.style.display = 'inline-flex';
-        });
-      } else {
-        // If it's Android/Chrome, we wait for the browser to confirm it's ready, 
-        // then show the 1-click install buttons.
-        window.addEventListener('beforeinstallprompt', (e) => {
-          e.preventDefault();
-          deferredPrompt = e;
-          document.querySelectorAll('.pwa-install-btn').forEach(btn => {
-            btn.style.display = 'inline-flex';
-          });
-        });
-      }
+      // FIX: Force the buttons to show for EVERYONE who hasn't installed it yet.
+      // This bypasses the strict browser limits that were hiding your button.
+      document.querySelectorAll('.pwa-install-btn').forEach(btn => {
+        btn.style.display = 'inline-flex';
+      });
+
+      // Capture the native install prompt if the browser supports it
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+      });
     }
 
     // Function triggered when the user clicks ANY "Download App" button
@@ -474,6 +468,9 @@
         deferredPrompt.userChoice.then((choiceResult) => {
           deferredPrompt = null;
         });
+      } else {
+        // Fallback for Desktop/Mac users where the native prompt doesn't trigger
+        alert("To install the app on this device, click the 'Install' icon in your browser's URL address bar, or add this page to your home screen.");
       }
     }
 
