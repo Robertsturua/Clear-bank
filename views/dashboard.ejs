@@ -83,8 +83,7 @@
     <div style="display: flex; align-items: center; gap: 12px;">
       <div class="mob-greeting">
         <span class="mob-greeting-sub">Welcome back,</span>
-        <strong class="mob-greeting-name"><%= typeof account !== 'undefined' && account.name ?
-          account.name : 'User' %></strong>
+        <strong class="mob-greeting-name"><%= typeof account !== 'undefined' && account.name ? account.name : 'User' %></strong>
       </div>
     </div>
     
@@ -94,8 +93,7 @@
         App <i data-lucide="download" style="width: 14px; height: 14px;"></i>
       </button>
       <button onclick="openProfileMenu()" class="mob-avatar-mini" style="width: 42px; height: 42px; font-size: 16px;">
-        <%= typeof username !== 'undefined' && username ?
-          username.charAt(0).toUpperCase() : 'U' %>
+        <%= typeof username !== 'undefined' && username ? username.charAt(0).toUpperCase() : 'U' %>
       </button>
     </div>
   </header>
@@ -106,7 +104,7 @@
       <div style="background: #fef2f2; border: 1px solid #fecaca; margin: 0 20px 24px 20px; padding: 16px; border-radius: 16px; display: flex; align-items: flex-start; gap: 12px; box-shadow: var(--mob-shadow-sm);">
         <i data-lucide="shield-alert" style="color: #ef4444; flex-shrink: 0; width: 24px; height: 24px;"></i>
         <div>
-           <h4 style="margin: 0 0 4px 0; color: #991b1b; font-size: 15px; font-weight: 700;">Account Suspended</h4>
+          <h4 style="margin: 0 0 4px 0; color: #991b1b; font-size: 15px; font-weight: 700;">Account Suspended</h4>
           <p style="margin: 0; color: #b91c1c; font-size: 13px; line-height: 1.4;">Your account is currently suspended and outgoing transfers are disabled.
             Please contact Support@clearb.org.</p>
         </div>
@@ -116,8 +114,7 @@
     <div style="margin-top: 20px; margin-bottom: 40px; text-align: center;">
       <div style="font-size: 14px; font-weight: 600; color: var(--mob-text-muted);">Total Balance · EUR</div>
       <div style="font-size: 56px; font-weight: 800; letter-spacing: -1px; margin-bottom: 16px; color: var(--mob-text);">
-        €<%= typeof fiatBalance !== 'undefined' ?
-          fiatBalance.toLocaleString('en-US', {minimumFractionDigits: 2}) : '0.00' %>
+        €<%= typeof fiatBalance !== 'undefined' ? fiatBalance.toLocaleString('en-US', {minimumFractionDigits: 2}) : '0.00' %>
       </div>
       <button style="background: var(--mob-primary-dim); color: var(--mob-primary); border: none; padding: 10px 24px; border-radius: 20px; font-weight: 700; font-size: 14px; cursor: pointer;">Active Accounts</button>
     </div>
@@ -128,8 +125,7 @@
         <span class="mob-action-label">Add money</span>
       </a>
       
-      <% if (typeof userStatus !== 'undefined' && userStatus === 'SUSPENDED') 
-        { %>
+      <% if (typeof userStatus !== 'undefined' && userStatus === 'SUSPENDED') { %>
         <a href="#" onclick="alert('Action disabled: Your account is currently suspended.'); return false;"
           class="mob-action-item" style="opacity: 0.5;">
           <div class="mob-action-circle" style="color: var(--mob-text-muted); border-color: var(--mob-border);"><i data-lucide="arrow-right-left"></i></div>
@@ -163,15 +159,12 @@
             const isHisa = tx.currency === 'HISA';
             const isCrypto = tx.currency === 'BTC' || tx.currency === 'ETH';
             let statusColor = '#10b981'; 
-            if 
-              (tx.status && tx.status.toUpperCase() === 'PENDING') statusColor = '#f59e0b'; 
+            if (tx.status && tx.status.toUpperCase() === 'PENDING') statusColor = '#f59e0b'; 
             if (tx.status && tx.status.toUpperCase() === 'DECLINED') statusColor = '#ef4444'; 
         %>
           <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--mob-border);">
             <div style="display: flex; align-items: center; gap: 16px;">
-              <div style="width: 40px; height: 40px; border-radius: 50%; display: 
-                flex; align-items: center; justify-content: center; <%= isHisa ? 'background: var(--mob-primary-dim); color: var(--mob-primary);' : (isCrypto ? 'background: #fef3c7; color: #d97706;' : 'background: #f1f5f9;
-                color: var(--mob-primary);') %>">
+              <div style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; <%= isHisa ? 'background: var(--mob-primary-dim); color: var(--mob-primary);' : (isCrypto ? 'background: #fef3c7; color: #d97706;' : 'background: #f1f5f9; color: var(--mob-primary);') %>">
                 <% if (isHisa) { %><i data-lucide="trending-up" style="width: 20px;"></i><% } 
                    else if (tx.currency === 'BTC') { %><i data-lucide="bitcoin" style="width: 20px;"></i><% } 
                    else if (tx.currency === 'ETH') { %><i data-lucide="hexagon" style="width: 20px;"></i><% } 
@@ -188,8 +181,7 @@
               </div>
             </div>
             <div style="font-size: 16px;
-              font-weight: 700; <%= tx.direction === 'INCOMING' ? 'color: #10b981;' : 'color: var(--mob-text);'
-              %>">
+              font-weight: 700; <%= tx.direction === 'INCOMING' ? 'color: #10b981;' : 'color: var(--mob-text);' %>">
               <%= tx.direction === 'INCOMING' ? '+' : '-' %><%= tx.amountStr %>
             </div>
           </div>
@@ -242,6 +234,7 @@
     // ==========================================
     // SERVICE WORKER REGISTRATION (THE FIX)
     // ==========================================
+   
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); });
     }
@@ -250,7 +243,6 @@
     // ADVANCED PWA INSTALL LOGIC (FAILSAFE UX)
     // ==========================================
     let deferredPrompt;
-    
     // Detect if the user is on an iPhone/iPad
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     // Detect if the app is ALREADY installed (running in standalone mode)
