@@ -188,39 +188,50 @@
   <script>
     lucide.createIcons();
 
-    // ADVANCED PWA INSTALL LOGIC (APPLE BYPASS)
+    // ==========================================
+    // ADVANCED PWA INSTALL LOGIC (FAILSAFE UX)
+    // ==========================================
     let deferredPrompt;
+    
+    // Detect if the user is on an iPhone/iPad
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    
+    // Detect if the app is ALREADY installed (running in standalone mode)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
+    // If the app is NOT already installed...
     if (!isStandalone) {
-      if (isIOS) {
-        document.querySelectorAll('.pwa-install-btn').forEach(btn => {
-          btn.style.display = 'inline-flex';
-        });
-      } else {
-        window.addEventListener('beforeinstallprompt', (e) => {
-          e.preventDefault();
-          deferredPrompt = e;
-          document.querySelectorAll('.pwa-install-btn').forEach(btn => {
-            btn.style.display = 'inline-flex';
-          });
-        });
-      }
+      // Force the buttons to show for EVERYONE who hasn't installed it yet
+      document.querySelectorAll('.pwa-install-btn').forEach(btn => {
+        btn.style.display = 'inline-flex';
+      });
+
+      // Capture the native install prompt if the browser supports it
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+      });
     }
 
+    // Function triggered when the user clicks ANY "Download App" button
     function triggerInstall() {
       if (isIOS) {
+        // Open the Apple Instructions Modal
         document.getElementById('iosModalOverlay').classList.add('open');
         setTimeout(() => document.getElementById('iosModalSheet').classList.add('open'), 10);
       } else if (deferredPrompt) {
+        // Trigger the Android/Chrome 1-click install
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
           deferredPrompt = null;
         });
+      } else {
+        // Fallback for Desktop/Mac users where the native prompt doesn't trigger
+        alert("To install the app on this device, click the 'Install' icon in your browser's URL address bar, or add this page to your home screen.");
       }
     }
 
+    // Close the iOS Modal
     function closeIOSModal() {
       document.getElementById('iosModalSheet').classList.remove('open');
       setTimeout(() => document.getElementById('iosModalOverlay').classList.remove('open'), 300);
