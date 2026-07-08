@@ -284,7 +284,7 @@
 
     let savedContacts = [];
     const userBalance = <%= typeof fiatBalance !== 'undefined' ? fiatBalance : 0 %>;
-    const DAILY_LIMIT = 100000;
+    const DAILY_LIMIT = 25000;
 
     function showToast(msg, isError = false) {
       const toast = document.getElementById('toast');
