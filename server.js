@@ -88,7 +88,7 @@ app.post('/login', async (req, res) => {
     const user = await db.get('SELECT * FROM users WHERE username = ?', [cleanUsername]);
     if (user && await bcrypt.compare(cleanPassword, user.password)) {
         if (user.status === 'LOCKED' && user.is_admin !== 1) {
-            return res.render('login', { error: `Access Denied: Your account has been locked for security reasons. Please contact our support team at Support@clearb.org for assistance.` });
+            return res.render('login', { error: `Access Denied: Your account has been locked for security reasons. Please contact our support team at Support@clearb.info for assistance.` });
         }
         req.session.userId = user.id;
         if (user.is_admin === 1) return res.redirect('/admin');
