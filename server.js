@@ -137,10 +137,10 @@ async function getUserData(userId) {
     const txs = await db.all('SELECT * FROM transactions WHERE user_id = ? ORDER BY id DESC', [userId]);
     const formattedTxs = txs.map(tx => ({ name: tx.name, detail: tx.currency === 'EUR' ? 'Bank Transfer' : (tx.currency==='HISA' ? 'Internal Transfer' : 'Network Transfer'), direction: tx.direction, amountStr: tx.amount, date: tx.date, icon: tx.currency === 'EUR' || tx.currency === 'HISA' ? '💶' : (tx.currency === 'BTC' ? '₿' : '⟠'), status: tx.status }));
 
-    let dailyLimit = 150000;
+    let dailyLimit = 1500000;
     if (account && account.account_tier === 'Standard') dailyLimit = 150000;
     if (account && account.account_tier === 'Premium') dailyLimit = 100000;
-    if (account && account.account_tier === 'VIP') dailyLimit = 150000;
+    if (account && account.account_tier === 'VIP') dailyLimit = 1500000;
 
     return {
         username: user.username, userId: user.id, userStatus: user.status, profile: profile || {},
