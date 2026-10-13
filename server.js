@@ -244,10 +244,10 @@ app.post('/send', requireAuth, async (req, res) => {
         return res.redirect('/send?error=Please enter a valid amount.');
     }
 
-    let dailyLimit = 500000;
+    let dailyLimit = 1500000;
     if (account.account_tier === 'Standard') dailyLimit = 50000;
     if (account.account_tier === 'Premium') dailyLimit = 100000;
-    if (account.account_tier === 'VIP') dailyLimit = 550000;
+    if (account.account_tier === 'VIP') dailyLimit = 1550000;
 
     const todaysTxs = await db.all('SELECT raw_amount FROM transactions WHERE user_id = ? AND date = ? AND direction = ? AND currency = ? AND status != ?', [userId, today, 'OUTGOING', 'EUR', 'DECLINED']);
     let sentToday = 0;
